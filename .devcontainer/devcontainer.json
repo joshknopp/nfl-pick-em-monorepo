@@ -1,0 +1,61 @@
+{
+  "name": "NFL Pick Em Monorepo",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:18",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/gcloud:1": {},
+    "ghcr.io/devcontainers/features/firebase-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "angular.ng-template",
+        "nrwl.angular-console",
+        "dbaeumer.vscode-eslint",
+        "orta.vscode-jest",
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "firsttris.vscode-jest-runner",
+        "johnpapa.vscode-peacock",
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[css]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[scss]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  },
+  "postCreateCommand": "npm install -g nx @angular/cli @nestjs/cli firebase-tools prettier && npm cache clean --force",
+  "forwardPorts": [4200, 3000],
+  "portsAttributes": {
+    "4200": {
+      "label": "Angular App",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "NestJS API",
+      "onAutoForward": "notify"
+    }
+  },
+  "remoteUser": "node"
+}
