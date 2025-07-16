@@ -1,0 +1,8 @@
+<h2>Upcoming Games</h2>
+<div *ngIf="games.length === 0">Loading games...</div>
+<ul>
+  <li *ngFor="let game of games">
+    {{ game.homeTeam }} vs {{ game.awayTeam }} (Week {{ game.week }}) - {{
+    game.date }}
+  </li>
+</ul>

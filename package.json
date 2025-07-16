@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "description": "NFL Pick 'Em app with Angular frontend and NestJS API in an Nx monorepo",
   "main": "index.js",
+  "workspaces": [
+    "api",
+    "frontend",
+    "api-e2e",
+    "frontend-e2e",
+    "libs"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -56,25 +63,5 @@
     "typescript-eslint": "^8.29.0",
     "webpack-cli": "^5.1.4"
   },
-  "nx": {},
-  "dependencies": {
-    "@angular/common": "~20.0.0",
-    "@angular/compiler": "~20.0.0",
-    "@angular/core": "~20.0.0",
-    "@angular/fire": "^20.0.1",
-    "@angular/forms": "~20.0.0",
-    "@angular/platform-browser": "~20.0.0",
-    "@angular/platform-browser-dynamic": "~20.0.0",
-    "@angular/router": "~20.0.0",
-    "@nestjs/common": "^11.0.0",
-    "@nestjs/core": "^11.0.0",
-    "@nestjs/platform-express": "^11.0.0",
-    "@nestjs/swagger": "^11.2.0",
-    "axios": "^1.6.0",
-    "firebase": "^11.10.0",
-    "firebase-admin": "^13.4.0",
-    "reflect-metadata": "^0.1.13",
-    "rxjs": "~7.8.0",
-    "zone.js": "~0.15.0"
-  }
+  "nx": {}
 }

@@ -5,10 +5,24 @@ import { AppModule } from './app/app.module'; // Adjust path if your app.module 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend communication
+  // Enable CORS for any origin, dynamically set header based on request's Origin or Referer
   app.enableCors({
-    origin: 'http://localhost:4200', // Allow your Angular app to access (change in prod)
+    origin: (origin, callback) => {
+      // If no origin header, allow (for tools like curl or server-to-server)
+      if (!origin) return callback(null, true);
+      // Otherwise, reflect the origin
+      callback(null, origin);
+    },
     credentials: true,
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    exposedHeaders: ['Authorization'],
   });
 
   const config = new DocumentBuilder()
