@@ -14,5 +14,9 @@
     "@angular/router": "~20.0.0",
     "firebase": "^11.10.0",
     "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.12",
+    "whatwg-fetch": "^3.6.20"
   }
 }

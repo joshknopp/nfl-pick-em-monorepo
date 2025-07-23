@@ -43,6 +43,7 @@
     }
   },
   "postCreateCommand": "npm install -g nx @angular/cli @nestjs/cli firebase-tools prettier && sudo npm install -g google-cloud/gcloud && sudo apt-get update && sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y && sudo apt-get install google-cloud-sdk-app-engine-python -y && sudo apt-get install google-cloud-sdk-app-engine-python-extras -y && sudo apt-get install google-cloud-sdk-app-engine-java -y && sudo apt-get install google-cloud-sdk-datastore-emulator -y && sudo apt-get install google-cloud-sdk-pubsub-emulator -y && sudo apt-get install google-cloud-sdk-bigtable-emulator -y && sudo apt-get install google-cloud-sdk-firestore-emulator -y && sudo apt-get install google-cloud-sdk-cbt -y && sudo apt-get install google-cloud-sdk-datalab -y && sudo apt-get install google-cloud-sdk-beta -y && sudo apt-get install google-cloud-sdk-kpt -y && sudo apt-get install google-cloud-sdk-minikube -y && sudo apt-get install google-cloud-sdk-terraform -y",
+  "postStartCommand": "echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p",
   "forwardPorts": [4200, 3000],
   "portsAttributes": {
     "4200": {

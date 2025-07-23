@@ -1,7 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Import CommonModule
-import { HttpClient } from '@angular/common/http'; // Import HttpClient
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import { AuthService } from './auth.service';
 
 interface Game {
   homeTeam: string;
@@ -12,17 +13,21 @@ interface Game {
 
 @Component({
   selector: 'app-games',
-  standalone: true, // Use standalone component
-  imports: [CommonModule], // Add CommonModule for ngFor
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './games.html',
   styleUrls: ['./games.css'],
 })
-export class Games implements OnInit {
+export class GamesComponent implements OnInit {
   games: Game[] = [];
 
   private http = inject(HttpClient);
+  auth = inject(AuthService);
 
-  ngOnInit() {
+  async ngOnInit() {
+    const userDetails = await this.auth.getUserDetails();
+    console.log('User details:', userDetails);
+
     this.http.get<Game[]>(`${environment.apiUrl}/games`).subscribe(
       (data: Game[]) => {
         this.games = data;
