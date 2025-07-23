@@ -1,28 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app/app.module'; // Adjust path if your app.module is directly in src
+import { AppModule } from './app/app.module';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for any origin, dynamically set header based on request's Origin or Referer
+  const corsRegex = new RegExp(process.env.CORS_REGEX ?? '');
   app.enableCors({
     origin: (origin, callback) => {
-      // If no origin header, allow (for tools like curl or server-to-server)
-      if (!origin) return callback(null, true);
-      // Otherwise, reflect the origin
-      callback(null, origin);
+      if (!origin || corsRegex.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
     },
     credentials: true,
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    exposedHeaders: ['Authorization'],
   });
 
   const config = new DocumentBuilder()
@@ -30,11 +24,11 @@ async function bootstrap() {
     .setDescription('API for managing NFL Pick Em game data and logic')
     .setVersion('1.0')
     .addTag('picks')
-    .addBearerAuth() // For future auth
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document); // Swagger UI will be at http://localhost:3000/api-docs
+  SwaggerModule.setup('api-docs', app, document);
 
   await app.listen(3000);
 }
