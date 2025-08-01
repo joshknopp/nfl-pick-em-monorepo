@@ -11,11 +11,21 @@ import {
 } from 'firebase/auth';
 import { environment } from '../environments/environment';
 import axios from 'axios';
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs'; // Import ReplaySubject
+import { map, first, take, tap } from 'rxjs/operators'; // Import operators
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   user: User | null = null;
   token: string | null = null;
+
+  private _isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  isAuthenticated$: Observable<boolean> =
+    this._isAuthenticatedSubject.asObservable();
+
+  // New: Subject to signal when Firebase Auth has finished its initial check
+  private _authReady = new ReplaySubject<boolean>(1); // Emits the last value to new subscribers
+  authReady$: Observable<boolean> = this._authReady.asObservable();
 
   private router = inject(Router);
 
@@ -24,11 +34,18 @@ export class AuthService {
       this.user = user;
       if (user) {
         this.token = await user.getIdToken();
+        this._isAuthenticatedSubject.next(true); // User is logged in
       } else {
         this.token = null;
+        this._isAuthenticatedSubject.next(false); // No user is logged in
       }
+      // Signal that Firebase Auth has completed its initial state check
+      this._authReady.next(true);
+      this._authReady.complete(); // It only needs to emit once
     });
   }
+
+  // --- Login/Logout/Register methods (no changes needed here) ---
 
   async loginWithGoogle() {
     const result = await signInWithPopup(auth, googleProvider);
@@ -62,17 +79,17 @@ export class AuthService {
     await signOut(auth);
     this.user = null;
     this.token = null;
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
-  isAuthenticated(): boolean {
-    return !!this.user;
+  getToken(): string | null {
+    return this.token;
   }
 
   async getUserDetails() {
-    if (!this.token) return null;
+    if (!this.getToken()) return null;
     const response = await axios.get(`${environment.apiUrl}/user`, {
-      headers: { Authorization: `Bearer ${this.token}` },
+      headers: { Authorization: `Bearer ${this.getToken()}` },
     });
     return response.data;
   }

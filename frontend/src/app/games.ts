@@ -28,13 +28,23 @@ export class GamesComponent implements OnInit {
     const userDetails = await this.auth.getUserDetails();
     console.log('User details:', userDetails);
 
-    this.http.get<Game[]>(`${environment.apiUrl}/games`).subscribe(
-      (data: Game[]) => {
-        this.games = data;
-      },
-      (error) => {
-        console.error('Error fetching games:', error);
-      }
-    );
+    // TODO centralize token logic to shared API service
+    this.http
+      .get<Game[]>(`${environment.apiUrl}/games`, {
+        headers: { Authorization: `Bearer ${this.auth.getToken()}` },
+      })
+      .subscribe({
+        next: (data: Game[]) => {
+          this.games = data;
+        },
+        error: (error) => {
+          console.error('Error fetching games:', error);
+        },
+      });
+  }
+
+  // TODO move to main layout
+  logout() {
+    this.auth.logout();
   }
 }

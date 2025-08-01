@@ -13,7 +13,7 @@ This project is a full-stack NFL Pick 'Em application, managed as an Nx monorepo
 To install dependencies and start both the API and UI in one step, run:
 
 ```bash
-npm install && NODE_ENV=development nx run-many --target=serve --projects=api,frontend --parallel
+npm install && NODE_ENV=development GOOGLE_APPLICATION_CREDENTIALS="api/serviceAccountKey.json" nx run-many --target=serve --projects=api,frontend --parallel
 ```
 
 ### Prerequisites
@@ -42,7 +42,7 @@ You can run both the API and the UI simultaneously using Nx. This will start eac
 From the root directory, run:
 
 ```bash
-NODE_ENV=development nx run-many --target=serve --projects=api,frontend --parallel
+NODE_ENV=development GOOGLE_APPLICATION_CREDENTIALS="api/serviceAccountKey.json" nx run-many --target=serve --projects=api,frontend --parallel
 ```
 
 This will:
@@ -55,7 +55,7 @@ This will:
 #### Run API only
 
 ```bash
-NODE_ENV=development nx serve api
+NODE_ENV=development GOOGLE_APPLICATION_CREDENTIALS="api/serviceAccountKey.json" nx serve api
 ```
 
 #### Run UI only

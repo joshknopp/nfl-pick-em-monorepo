@@ -1,7 +1,6 @@
 export const environment = {
-  // Replace with your actual Codespace API URL, e.g.:
-  // apiUrl: 'https://3000-your-codespace-id.github.dev'
-  apiUrl: 'https://jubilant-space-garbanzo-r49766w94j25q5j-3000.app.github.dev',
+  // Replace with actual API URL
+  apiUrl: 'https://congenial-invention-7vq755x9j5fvr7-3000.app.github.dev',
 
   firebaseConfig: {
     apiKey: 'AIzaSyAVOlaBZbUdsWdeL0wmO3-vbNC2xvcXlE4',
