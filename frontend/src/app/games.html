@@ -4,7 +4,7 @@
 <div *ngIf="games.length === 0">Loading games...</div>
 <ul>
   <li *ngFor="let game of games">
-    {{ game.homeTeam }} vs {{ game.awayTeam }} (Week {{ game.week }}) - {{
-    game.date }}
+    {{ game.awayTeam }} at {{ game.homeTeam }} (Week {{ game.week }}) - {{
+    game.kickoffTime | date:'medium' }}
   </li>
 </ul>

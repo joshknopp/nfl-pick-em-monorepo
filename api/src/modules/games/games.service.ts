@@ -1,23 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { GameDto } from 'libs';
+import * as admin from 'firebase-admin';
 
 @Injectable()
 export class GamesService {
-  getMockGames(): any[] {
-    return [
-      {
-        id: 'game1',
-        homeTeam: 'Chiefs',
-        awayTeam: 'Ravens',
-        week: 1,
-        date: '2025-09-04',
-      },
-      {
-        id: 'game2',
-        homeTeam: 'Lions',
-        awayTeam: '49ers',
-        week: 1,
-        date: '2025-09-05',
-      },
-    ];
+  async getGames(): Promise<GameDto[]> {
+    const snapshot = await admin.firestore().collection('games').get();
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        awayTeam: data.awayTeam,
+        homeTeam: data.homeTeam,
+        kickoffTime:
+          (data.kickoffTime?.toDate?.() ?? data.kickoffTime)?.toISOString?.() ??
+          '',
+        week: data.week,
+        winner: data.winner ?? null,
+      };
+    });
   }
 }

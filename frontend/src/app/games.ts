@@ -1,18 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
-import { AuthService } from './auth.service';
-import { EnvironmentService } from './environment.service';
-import { UserService } from './user.service';
+import { Component, inject, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
+import { UserService } from './user.service';
 
-interface Game {
-  homeTeam: string;
-  awayTeam: string;
-  week: number;
-  date: string;
-}
+import { GameDto } from 'libs';
+type Game = GameDto;
 
 @Component({
   selector: 'app-games',
@@ -25,7 +18,6 @@ export class GamesComponent implements OnInit {
   games: Game[] = [];
 
   private apiService = inject(ApiService);
-  private environmentService = inject(EnvironmentService);
   private userService = inject(UserService);
   private auth = inject(AuthService);
 
