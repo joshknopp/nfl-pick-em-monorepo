@@ -1,15 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
+import { Component, inject, OnInit } from '@angular/core';
+import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { UserService } from './user.service';
 
-interface Game {
-  homeTeam: string;
-  awayTeam: string;
-  week: number;
-  date: string;
-}
+import { GameDto } from 'libs';
+type Game = GameDto;
 
 @Component({
   selector: 'app-games',
@@ -21,26 +17,21 @@ interface Game {
 export class GamesComponent implements OnInit {
   games: Game[] = [];
 
-  private http = inject(HttpClient);
-  auth = inject(AuthService);
+  private apiService = inject(ApiService);
+  private userService = inject(UserService);
+  private auth = inject(AuthService);
 
   async ngOnInit() {
-    const userDetails = await this.auth.getUserDetails();
+    const userDetails = await this.userService.getUserDetails();
     console.log('User details:', userDetails);
 
-    // TODO centralize token logic to shared API service
-    this.http
-      .get<Game[]>(`${environment.apiUrl}/games`, {
-        headers: { Authorization: `Bearer ${this.auth.getToken()}` },
-      })
-      .subscribe({
-        next: (data: Game[]) => {
-          this.games = data;
-        },
-        error: (error) => {
-          console.error('Error fetching games:', error);
-        },
-      });
+    try {
+      const token = this.auth.getToken() ?? undefined;
+      const games = await this.apiService.get('games', { token });
+      this.games = games;
+    } catch (error) {
+      console.error('Error fetching games:', error);
+    }
   }
 
   // TODO move to main layout

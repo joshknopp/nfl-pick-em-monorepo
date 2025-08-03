@@ -1,10 +1,11 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
-  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { GameDto } from 'libs';
 import { AuthGuard } from '../../shared/guards/auth.guard';
 import { GamesService } from './games.service';
 
@@ -16,9 +17,9 @@ export class GamesController {
 
   @UseGuards(AuthGuard)
   @Get()
-  @ApiOperation({ summary: 'Get a list of mock NFL games' })
+  @ApiOperation({ summary: 'Get a list of NFL games from Firestore' })
   @ApiResponse({ status: 200, description: 'List of games.' })
-  getGames(): any[] {
-    return this.gamesService.getMockGames();
+  async getGames(): Promise<GameDto[]> {
+    return await this.gamesService.getGames();
   }
 }

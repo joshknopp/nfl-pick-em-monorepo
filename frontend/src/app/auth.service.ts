@@ -10,9 +10,9 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { environment } from '../environments/environment';
-import axios from 'axios';
-import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs'; // Import ReplaySubject
-import { map, first, take, tap } from 'rxjs/operators'; // Import operators
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
+import { EnvironmentService } from './environment.service';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -23,29 +23,28 @@ export class AuthService {
   isAuthenticated$: Observable<boolean> =
     this._isAuthenticatedSubject.asObservable();
 
-  // New: Subject to signal when Firebase Auth has finished its initial check
-  private _authReady = new ReplaySubject<boolean>(1); // Emits the last value to new subscribers
+  private _authReady = new ReplaySubject<boolean>(1);
   authReady$: Observable<boolean> = this._authReady.asObservable();
 
   private router = inject(Router);
+  private environmentService = inject(EnvironmentService);
+  private apiService = inject(ApiService);
 
   constructor() {
     onAuthStateChanged(auth, async (user) => {
       this.user = user;
       if (user) {
         this.token = await user.getIdToken();
-        this._isAuthenticatedSubject.next(true); // User is logged in
+        this._isAuthenticatedSubject.next(true);
       } else {
         this.token = null;
-        this._isAuthenticatedSubject.next(false); // No user is logged in
+        this._isAuthenticatedSubject.next(false);
       }
       // Signal that Firebase Auth has completed its initial state check
       this._authReady.next(true);
       this._authReady.complete(); // It only needs to emit once
     });
   }
-
-  // --- Login/Logout/Register methods (no changes needed here) ---
 
   async loginWithGoogle() {
     const result = await signInWithPopup(auth, googleProvider);
@@ -84,13 +83,5 @@ export class AuthService {
 
   getToken(): string | null {
     return this.token;
-  }
-
-  async getUserDetails() {
-    if (!this.getToken()) return null;
-    const response = await axios.get(`${environment.apiUrl}/user`, {
-      headers: { Authorization: `Bearer ${this.getToken()}` },
-    });
-    return response.data;
   }
 }
