@@ -1,10 +1,244 @@
-ul {
-  list-style-type: none;
-  padding: 0;
+/* Loading spinner */
+.loading-spinner {
+  padding: var(--spacing-2xl);
 }
-li {
-  margin-bottom: 5px;
-  padding: 8px;
-  border: 1px solid #eee;
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-light);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Game card specific styles */
+.game-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Game header */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
+}
+
+.badge {
+  background-color: var(--primary-color);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.game-time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Teams container */
+.teams-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: var(--spacing-sm);
+}
+
+.home-team {
+  flex-direction: row-reverse;
+}
+
+.team-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-light);
+}
+
+.team-initial {
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.team-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-team .team-info {
+  text-align: right;
+}
+
+.team-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-label {
+  margin-top: 2px;
+}
+
+.vs-divider {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-md);
+}
+
+.vs-text {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  background-color: var(--surface);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+}
+
+/* Prediction section */
+.prediction-section {
+  border-top: 1px solid var(--border-light);
+  padding-top: var(--spacing-md);
+}
+
+.prediction-label {
+  font-weight: 500;
+}
+
+/* Game status */
+.game-status {
+  margin-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
+  padding-top: var(--spacing-md);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.winner {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+/* Picks summary */
+.picks-summary {
+  margin-top: var(--spacing-2xl);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border-light);
   border-radius: 4px;
+  overflow: hidden;
+  margin-top: var(--spacing-sm);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .game-header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: center;
+    text-align: center;
+  }
+  
+  .game-time {
+    align-items: center;
+  }
+  
+  .teams-container {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .team {
+    justify-content: center;
+    flex-direction: row;
+  }
+  
+  .home-team {
+    flex-direction: row;
+  }
+  
+  .team-info {
+    text-align: center;
+  }
+  
+  .home-team .team-info {
+    text-align: center;
+  }
+  
+  .vs-divider {
+    order: -1;
+    padding: 0;
+  }
+  
+  .vs-text {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .team-initial {
+    font-size: 1rem;
+  }
+  
+  .team-name {
+    font-size: 0.875rem;
+  }
 }
