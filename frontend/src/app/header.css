@@ -1,0 +1,29 @@
+.site-header {
+  background: #222;
+  color: #fff;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.site-title {
+  margin: 0;
+  font-size: 2rem;
+}
+.logout-btn {
+  background: #c00;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.logout-btn:hover {
+  background: #a00;
+}

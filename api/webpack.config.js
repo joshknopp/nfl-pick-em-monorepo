@@ -17,4 +17,7 @@ module.exports = {
       generatePackageJson: true,
     }),
   ],
+  watchOptions: {
+    ignored: '**/node_modules',
+  },
 };
