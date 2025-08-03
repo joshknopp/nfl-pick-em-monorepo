@@ -1,18 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { auth, googleProvider, facebookProvider } from '../firebase';
 import {
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
   User,
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
 } from 'firebase/auth';
-import { environment } from '../environments/environment';
 import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
-import { EnvironmentService } from './environment.service';
-import { ApiService } from './api.service';
+import { auth, facebookProvider, googleProvider } from '../firebase';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,8 +24,6 @@ export class AuthService {
   authReady$: Observable<boolean> = this._authReady.asObservable();
 
   private router = inject(Router);
-  private environmentService = inject(EnvironmentService);
-  private apiService = inject(ApiService);
 
   constructor() {
     onAuthStateChanged(auth, async (user) => {

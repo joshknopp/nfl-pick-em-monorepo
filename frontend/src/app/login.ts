@@ -15,11 +15,19 @@ export class LoginComponent {
   password = '';
   error = '';
 
-  auth = inject(AuthService);
+  authService = inject(AuthService);
+
+  async logout() {
+    try {
+      await this.authService.logout();
+    } catch {
+      this.error = 'Logout failed.';
+    }
+  }
 
   async loginWithGoogle() {
     try {
-      await this.auth.loginWithGoogle();
+      await this.authService.loginWithGoogle();
     } catch {
       this.error = 'Google login failed.';
     }
@@ -27,7 +35,7 @@ export class LoginComponent {
 
   async loginWithFacebook() {
     try {
-      await this.auth.loginWithFacebook();
+      await this.authService.loginWithFacebook();
     } catch {
       this.error = 'Facebook login failed.';
     }
@@ -35,7 +43,7 @@ export class LoginComponent {
 
   async loginWithEmail() {
     try {
-      await this.auth.loginWithEmail(this.email, this.password);
+      await this.authService.loginWithEmail(this.email, this.password);
     } catch {
       this.error = 'Email login failed.';
     }
@@ -43,7 +51,7 @@ export class LoginComponent {
 
   async registerWithEmail() {
     try {
-      await this.auth.registerWithEmail(this.email, this.password);
+      await this.authService.registerWithEmail(this.email, this.password);
     } catch {
       this.error = 'Registration failed.';
     }
