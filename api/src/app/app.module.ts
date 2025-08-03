@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 import { GamesModule } from '../modules/games/games.module';
 import { UserController } from './user.controller';
 import { AuthGuard } from '../shared/guards/auth.guard';
+import { PicksModule } from '../modules/picks/picks.module';
 
 @Module({
-  imports: [GamesModule],
+  imports: [GamesModule, PicksModule],
   controllers: [AppController, UserController],
   providers: [AppService, AuthGuard],
 })
