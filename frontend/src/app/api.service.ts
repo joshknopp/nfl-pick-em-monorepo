@@ -21,4 +21,18 @@ export class ApiService {
     const response = await axios.get(url, axiosConfig);
     return response.data;
   }
+
+  async post(path: string, data: any, config?: { anonymous?: boolean }) {
+    const url = `${this.environmentService.getApiUrl()}/${path}`;
+    const headers: Record<string, string> = {};
+    if (!config?.anonymous) {
+      const token = this.authService.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    const axiosConfig: AxiosRequestConfig = { headers };
+    const response = await axios.post(url, data, axiosConfig);
+    return response.data;
+  }
 }
