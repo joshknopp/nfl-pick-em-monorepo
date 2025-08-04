@@ -10,6 +10,12 @@ interface User {
 @Injectable()
 export class PicksService {
   async getUserPicks(user: User): Promise<PickDTO[]> {
+    if (!user || !user.id) {
+      console.error('getUserPicks: user or user.id is undefined', user);
+      throw new Error(
+        'User ID is undefined. Check AuthGuard and request population.'
+      );
+    }
     const snapshot = await admin
       .firestore()
       .collection('picks')

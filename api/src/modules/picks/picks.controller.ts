@@ -35,7 +35,7 @@ export class PicksController {
   @Post()
   @ApiOperation({ summary: 'Save a pick for the current user' })
   @ApiResponse({ status: 201, description: 'Pick saved.' })
-  async post(@Body() picksDto: PickDTO, @Req() req): Promise<PickDTO> {
+  async post(@Body() picksDto: any /*PickDTO*/, @Req() req): Promise<PickDTO> {
     return await this.picksService.saveUserPick(req.user, picksDto);
   }
 }
