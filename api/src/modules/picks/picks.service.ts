@@ -1,0 +1,31 @@
+import { Injectable } from '@nestjs/common';
+import { PickDTO } from 'libs';
+import * as admin from 'firebase-admin';
+
+interface User {
+  id: string;
+  // add other user properties as needed
+}
+
+@Injectable()
+export class PicksService {
+  async getUserPicks(user: User): Promise<PickDTO[]> {
+    const snapshot = await admin
+      .firestore()
+      .collection('picks')
+      .where('user', '==', user.id)
+      .get();
+    return snapshot.docs.map((doc) => doc.data() as PickDTO);
+  }
+
+  async getLeaguePicks(): Promise<PickDTO[]> {
+    const snapshot = await admin.firestore().collection('picks').get();
+    return snapshot.docs.map((doc) => doc.data() as PickDTO);
+  }
+
+  async saveUserPick(user: User, picksDto: PickDTO): Promise<PickDTO> {
+    const pick = { ...picksDto, user: user.id };
+    await admin.firestore().collection('picks').add(pick);
+    return pick;
+  }
+}
