@@ -70,6 +70,7 @@ async function importGames() {
 
           // Create the document data, ,omitting the 'status' field.
           const gameData = {
+            season: parseInt(game.season, 10),
             week: parseInt(game.week, 10),
             awayTeam: game.away,
             homeTeam: game.home,

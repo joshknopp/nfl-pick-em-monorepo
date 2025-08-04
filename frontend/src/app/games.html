@@ -1,97 +1,81 @@
 <div class="container">
-  <h2 class="text-center mb-4">NFL Pick 'Em - Week {{ getCurrentWeek() }}</h2>
-  
-  <div *ngIf="games.length === 0" class="text-center">
+  <div class="week-nav text-center mb-3">
+    <button
+      class="btn btn-secondary mr-2"
+      (click)="goToPreviousWeek()"
+      [disabled]="selectedWeek <= minWeek"
+    >
+      Previous
+    </button>
+    <span class="current-week-label">Week {{ selectedWeek }}</span>
+    <button
+      class="btn btn-secondary ml-2"
+      (click)="goToNextWeek()"
+      [disabled]="selectedWeek >= maxWeek"
+    >
+      Next
+    </button>
+  </div>
+
+  <div *ngIf="filteredGames.length === 0" class="text-center">
     <div class="loading-spinner">
       <div class="spinner"></div>
       <p class="text-muted mt-3">Loading games...</p>
     </div>
   </div>
 
-  <div class="grid grid-auto" *ngIf="games.length > 0">
-    <div class="card game-card" *ngFor="let game of games; trackBy: trackGame">
+  <div class="grid grid-auto" *ngIf="filteredGames.length > 0">
+    <div
+      class="card game-card"
+      *ngFor="let game of filteredGames; trackBy: trackGame"
+    >
       <div class="card-content">
         <!-- Game Info Header -->
         <div class="game-header">
-          <div class="game-week">
-            <span class="badge">Week {{ game.week }}</span>
-          </div>
           <div class="game-time">
-            <span class="text-sm text-muted">{{ game.kickoffTime | date:'E, MMM d' }}</span>
-            <span class="text-xs text-light">{{ game.kickoffTime | date:'h:mm a' }}</span>
+            <span class="text-xs text-light"
+              >{{ game.kickoffTime | date:'E, MMM d' }}, {{ game.kickoffTime |
+              date:'h:mm a' }}</span
+            >
           </div>
         </div>
-
-        <!-- Teams Display -->
-        <div class="teams-container">
-          <div class="team away-team">
-            <div class="team-logo">
-              <div class="team-initial">{{ getTeamInitial(game.awayTeam) }}</div>
-            </div>
-            <div class="team-info">
-              <div class="team-name">{{ game.awayTeam }}</div>
-              <div class="team-label text-xs text-muted">Away</div>
-            </div>
-          </div>
-
-          <div class="vs-divider">
-            <span class="vs-text">&#64;</span>
-          </div>
-
-          <div class="team home-team">
-            <div class="team-info">
-              <div class="team-name">{{ game.homeTeam }}</div>
-              <div class="team-label text-xs text-muted">Home</div>
-            </div>
-            <div class="team-logo">
-              <div class="team-initial">{{ getTeamInitial(game.homeTeam) }}</div>
-            </div>
-          </div>
-        </div>
-
         <!-- Winner Prediction Radio Buttons -->
-        <div class="prediction-section">
-          <p class="prediction-label text-sm text-muted mb-2">Pick the winner:</p>
+        <div>
           <div class="radio-group">
             <div class="radio-button">
-              <input 
-                type="radio" 
-                [id]="'away-' + getGameId(game)" 
+              <input
+                type="radio"
+                [id]="'away-' + getGameId(game)"
                 [name]="'game-' + getGameId(game)"
                 [value]="game.awayTeam"
-                (change)="onPredictionChange(game, game.awayTeam)">
-              <label [for]="'away-' + getGameId(game)">{{ getTeamAbbr(game.awayTeam) }}</label>
+                (change)="onPredictionChange(game, game.awayTeam)"
+              />
+              <label [for]="'away-' + getGameId(game)"
+                >{{ game.awayTeam }}</label
+              >
+            </div>
+            <div class="vs-divider">
+              <span class="vs-text">&#64;</span>
             </div>
             <div class="radio-button">
-              <input 
-                type="radio" 
-                [id]="'home-' + getGameId(game)" 
+              <input
+                type="radio"
+                [id]="'home-' + getGameId(game)"
                 [name]="'game-' + getGameId(game)"
                 [value]="game.homeTeam"
-                (change)="onPredictionChange(game, game.homeTeam)">
-              <label [for]="'home-' + getGameId(game)">{{ getTeamAbbr(game.homeTeam) }}</label>
+                (change)="onPredictionChange(game, game.homeTeam)"
+              />
+              <label [for]="'home-' + getGameId(game)"
+                >{{ game.homeTeam }}</label
+              >
             </div>
           </div>
         </div>
-
         <!-- Game Status -->
         <div class="game-status" *ngIf="game.winner">
           <div class="status-badge winner">
             <span class="status-text">Winner: {{ game.winner }}</span>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Summary Section -->
-  <div class="picks-summary" *ngIf="games.length > 0">
-    <div class="card">
-      <div class="card-content text-center">
-        <h3 class="mb-2">Your Picks</h3>
-        <p class="text-muted text-sm">{{ getPicksCount() }} of {{ games.length }} games picked</p>
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="getPicksProgress()"></div>
         </div>
       </div>
     </div>
