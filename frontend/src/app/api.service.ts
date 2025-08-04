@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import axios, { AxiosRequestConfig } from 'axios';
 import { AuthService } from './auth.service';
 import { EnvironmentService } from './environment.service';
+import { Observable, from } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private environmentService = inject(EnvironmentService);
   private authService = inject(AuthService);
 
-  async get(path: string, config?: { anonymous?: boolean }) {
+  get(path: string, config?: { anonymous?: boolean }): Observable<any> {
     const url = `${this.environmentService.getApiUrl()}/${path}`;
     const headers: Record<string, string> = {};
     if (!config?.anonymous) {
@@ -18,11 +19,14 @@ export class ApiService {
       }
     }
     const axiosConfig: AxiosRequestConfig = { headers };
-    const response = await axios.get(url, axiosConfig);
-    return response.data;
+    return from(axios.get(url, axiosConfig).then((response) => response.data));
   }
 
-  async post(path: string, data: any, config?: { anonymous?: boolean }) {
+  post(
+    path: string,
+    data: any,
+    config?: { anonymous?: boolean }
+  ): Observable<any> {
     const url = `${this.environmentService.getApiUrl()}/${path}`;
     const headers: Record<string, string> = {};
     if (!config?.anonymous) {
@@ -32,7 +36,8 @@ export class ApiService {
       }
     }
     const axiosConfig: AxiosRequestConfig = { headers };
-    const response = await axios.post(url, data, axiosConfig);
-    return response.data;
+    return from(
+      axios.post(url, data, axiosConfig).then((response) => response.data)
+    );
   }
 }

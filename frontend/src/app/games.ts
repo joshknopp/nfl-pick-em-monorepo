@@ -27,21 +27,23 @@ export class GamesComponent implements OnInit {
 
   private apiService = inject(ApiService);
 
-  async ngOnInit() {
-    try {
-      const games = await this.apiService.get('games');
-      games.sort((a: Game, b: Game) => {
-        if (a.season !== b.season) return a.season - b.season;
-        if (a.week !== b.week) return a.week - b.week;
-        return a.kickoffTime.localeCompare(b.kickoffTime);
-      });
-      this.games = games;
-      this.setWeekBounds();
-      this.selectedWeek = this.getInitialWeek();
-      this.filterGamesByWeek();
-    } catch (error) {
-      console.error('Error fetching games:', error);
-    }
+  ngOnInit() {
+    this.apiService.get('games').subscribe({
+      next: (games: Game[]) => {
+        games.sort((a: Game, b: Game) => {
+          if (a.season !== b.season) return a.season - b.season;
+          if (a.week !== b.week) return a.week - b.week;
+          return a.kickoffTime.localeCompare(b.kickoffTime);
+        });
+        this.games = games;
+        this.setWeekBounds();
+        this.selectedWeek = this.getInitialWeek();
+        this.filterGamesByWeek();
+      },
+      error: (error) => {
+        console.error('Error fetching games:', error);
+      },
+    });
   }
 
   getGameId(game: Game): string {
