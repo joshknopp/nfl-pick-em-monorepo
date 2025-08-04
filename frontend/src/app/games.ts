@@ -139,6 +139,20 @@ export class GamesComponent implements OnInit {
     const gameId = this.getGameId(game);
     this.predictions.set(gameId, prediction);
 
+    const pick: PickDTO = {
+      season: game.season,
+      week: game.week,
+      homeTeam: game.homeTeam,
+      awayTeam: game.awayTeam,
+      pickWinner: prediction,
+      user: '', // User ID will be set later
+    };
+    this.picksService.saveUserPick(pick).subscribe({
+      error: (error) => {
+        console.error('Error saving user pick:', error);
+      },
+    });
+
     // Log for now - user mentioned they'll handle the saving logic later
     console.log(`Picked ${prediction} for ${this.getGameId(game)}`);
   }

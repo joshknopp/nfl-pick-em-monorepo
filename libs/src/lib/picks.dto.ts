@@ -1,5 +1,5 @@
 export interface PickDTO {
-  season: string;
+  season: number;
   week: number;
   homeTeam: string;
   awayTeam: string;
