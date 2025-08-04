@@ -20,10 +20,14 @@ import { RouterModule } from '@angular/router';
           <!-- Desktop Navigation -->
           <nav class="desktop-nav" *ngIf="currentUser()">
             <a routerLink="/games" routerLinkActive="active" class="nav-link">
-              <span class="nav-icon">🎮</span>
-              Games
+              <span class="nav-icon">✅</span>
+              Picks
             </a>
-            <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">
+            <a
+              routerLink="/leaderboard"
+              routerLinkActive="active"
+              class="nav-link"
+            >
               <span class="nav-icon">🏆</span>
               Leaderboard
             </a>
@@ -34,22 +38,28 @@ import { RouterModule } from '@angular/router';
             <!-- User Info -->
             <div class="user-info">
               <div class="user-avatar">
-                <img *ngIf="currentUser()?.photoURL" [src]="currentUser()?.photoURL" [alt]="currentUser()?.displayName || 'User avatar'">
+                <img
+                  *ngIf="currentUser()?.photoURL"
+                  [src]="currentUser()?.photoURL"
+                  [alt]="currentUser()?.displayName || 'User avatar'"
+                />
                 <div *ngIf="!currentUser()?.photoURL" class="user-initial">
                   {{ getUserInitial() }}
                 </div>
               </div>
               <div class="user-details">
-                <span class="user-name">{{ currentUser()?.displayName || currentUser()?.email }}</span>
-                <span class="user-status text-xs">Online</span>
+                <span class="user-name">{{
+                  currentUser()?.displayName || currentUser()?.email
+                }}</span>
               </div>
             </div>
 
             <!-- Logout Button -->
-            <button 
-              class="btn btn-secondary logout-btn" 
+            <button
+              class="btn btn-secondary logout-btn"
               (click)="logout()"
-              [disabled]="isLoggingOut">
+              [disabled]="isLoggingOut"
+            >
               <span *ngIf="!isLoggingOut">Sign Out</span>
               <span *ngIf="isLoggingOut">
                 <span class="spinner-sm"></span>
@@ -59,11 +69,12 @@ import { RouterModule } from '@angular/router';
           </div>
 
           <!-- Mobile Menu Button -->
-          <button 
+          <button
             class="mobile-menu-btn"
             *ngIf="currentUser()"
             (click)="toggleMobileMenu()"
-            [class.active]="isMobileMenuOpen">
+            [class.active]="isMobileMenuOpen"
+          >
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
@@ -73,11 +84,21 @@ import { RouterModule } from '@angular/router';
         <!-- Mobile Navigation -->
         <nav class="mobile-nav" *ngIf="currentUser() && isMobileMenuOpen">
           <div class="mobile-nav-content">
-            <a routerLink="/games" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <a
+              routerLink="/games"
+              routerLinkActive="active"
+              class="mobile-nav-link"
+              (click)="closeMobileMenu()"
+            >
               <span class="nav-icon">🎮</span>
               Games
             </a>
-            <a routerLink="/leaderboard" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <a
+              routerLink="/leaderboard"
+              routerLinkActive="active"
+              class="mobile-nav-link"
+              (click)="closeMobileMenu()"
+            >
               <span class="nav-icon">🏆</span>
               Leaderboard
             </a>
@@ -120,7 +141,7 @@ export class HeaderComponent {
 
   async logout(): Promise<void> {
     if (this.isLoggingOut) return;
-    
+
     this.isLoggingOut = true;
     this.closeMobileMenu();
 
