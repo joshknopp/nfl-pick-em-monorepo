@@ -11,7 +11,7 @@ export class PicksService {
   private apiService = inject(ApiService);
 
   getUserPicks(): Observable<PickDTO[]> {
-    return this.apiService.get('picks/user');
+    return this.apiService.get('picks');
   }
 
   getLeaguePicks(): Observable<PickDTO[]> {
@@ -19,6 +19,6 @@ export class PicksService {
   }
 
   saveUserPick(pick: PickDTO): Observable<PickDTO> {
-    return this.apiService.post('picks/user', pick);
+    return this.apiService.post('picks', pick);
   }
 }

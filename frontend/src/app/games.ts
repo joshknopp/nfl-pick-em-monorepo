@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
 
-import { GameDto } from 'libs';
+import { GameDto, PickDTO } from 'libs';
+import { PicksService } from './picks.service';
 type Game = GameDto;
 
 interface GamePrediction {
@@ -24,25 +25,86 @@ export class GamesComponent implements OnInit {
   selectedWeek = 1;
   minWeek = 1;
   maxWeek = 1;
+  isLoading = true;
 
   private apiService = inject(ApiService);
+  private picksService = inject(PicksService);
 
   ngOnInit() {
-    this.apiService.get('games').subscribe({
-      next: (games: Game[]) => {
-        games.sort((a: Game, b: Game) => {
-          if (a.season !== b.season) return a.season - b.season;
-          if (a.week !== b.week) return a.week - b.week;
-          return a.kickoffTime.localeCompare(b.kickoffTime);
-        });
-        this.games = games;
-        this.setWeekBounds();
-        this.selectedWeek = this.getInitialWeek();
+    this.loadGamesAndPicks();
+  }
+
+  private loadGamesAndPicks() {
+    this.isLoading = true;
+    Promise.all([this.getGamesPromise(), this.getUserPicksPromise()])
+      .then(([games, picks]) => {
+        this.handleGamesLoaded(games);
+        this.handlePicksLoaded(picks);
+        this.isLoading = false;
         this.filterGamesByWeek();
-      },
-      error: (error) => {
-        console.error('Error fetching games:', error);
-      },
+      })
+      .catch((error) => {
+        console.error('Error loading games or picks:', error);
+        this.isLoading = false;
+      });
+  }
+
+  private getGamesPromise(): Promise<Game[]> {
+    return new Promise((resolve, reject) => {
+      this.apiService.get('games').subscribe({
+        next: (games: Game[]) => {
+          games.sort((a: Game, b: Game) => {
+            if (a.season !== b.season) return a.season - b.season;
+            if (a.week !== b.week) return a.week - b.week;
+            return a.kickoffTime.localeCompare(b.kickoffTime);
+          });
+          resolve(games);
+        },
+        error: reject,
+      });
+    });
+  }
+
+  private getUserPicksPromise(): Promise<GamePrediction[]> {
+    // Replace with actual picksService call
+    return new Promise((resolve, reject) => {
+      if (!this.picksService || !this.picksService.getUserPicks) {
+        resolve([]);
+        return;
+      }
+      const obs = this.picksService.getUserPicks();
+      if (obs && typeof obs.subscribe === 'function') {
+        obs.subscribe({
+          next: (pickDtos: PickDTO[]) => {
+            // Map PickDTO[] to GamePrediction[]
+            // TODO this feels super fragile as it is being done in multiple places for games/picks
+            const mapped = pickDtos.map((dto) => ({
+              gameId: `${dto.season}-${String(dto.week).padStart(
+                2,
+                '0'
+              )}-${dto.awayTeam.toLowerCase()}-at-${dto.homeTeam.toLowerCase()}`,
+              prediction: dto.pickWinner,
+            }));
+            resolve(mapped);
+          },
+          error: reject,
+        });
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
+  private handleGamesLoaded(games: Game[]) {
+    this.games = games;
+    this.setWeekBounds();
+    this.selectedWeek = this.getInitialWeek();
+  }
+
+  private handlePicksLoaded(picks: GamePrediction[]) {
+    // Preselect radio buttons for games with existing picks
+    picks.forEach((pick) => {
+      this.predictions.set(pick.gameId, pick.prediction);
     });
   }
 
