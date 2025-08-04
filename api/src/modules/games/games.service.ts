@@ -9,6 +9,7 @@ export class GamesService {
     return snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
+        season: data.season,
         awayTeam: data.awayTeam,
         homeTeam: data.homeTeam,
         kickoffTime:

@@ -1,31 +1,147 @@
-<div class="login-container">
-  <h2>Login / Register</h2>
-  <div class="social-login">
-    <button (click)="loginWithGoogle()">Login with Google</button>
-    <button (click)="loginWithFacebook()">Login with Facebook</button>
-  </div>
-  <main>
-    <form (ngSubmit)="loginWithEmail()" class="login-form">
-      <label for="email">Email:</label>
-      <input
-        type="email"
-        [(ngModel)]="email"
-        name="email"
-        id="email"
-        required
-      />
-      <label for="password">Password:</label>
-      <input
-        type="password"
-        [(ngModel)]="password"
-        name="password"
-        id="password"
-        required
-      />
-      <button type="submit">Login</button>
-      <button type="button" (click)="registerWithEmail()">Register</button>
-    </form>
+<div class="login-page">
+  <div class="container-sm">
+    <div class="login-container">
+      <!-- Logo/Header Section -->
+      <div class="login-header text-center">
+        <div class="app-logo">
+          <div class="logo-icon">🏈</div>
+          <h1 class="app-title">NFL Pick 'Em</h1>
+          <p class="app-subtitle text-muted">Make your predictions and compete with friends</p>
+        </div>
+      </div>
 
-    <div *ngIf="error" class="error">{{ error }}</div>
-  </main>
+      <!-- Social Login Section -->
+      <div class="social-login-section">
+        <button 
+          type="button" 
+          class="btn btn-google"
+          (click)="loginWithGoogle()"
+          [disabled]="isLoading">
+          <span *ngIf="!isLoading">Continue with Google</span>
+          <span *ngIf="isLoading">Signing in...</span>
+        </button>
+        
+        <div class="divider">
+          <span class="divider-text">or</span>
+        </div>
+      </div>
+
+      <!-- Email Login/Register Section -->
+      <div class="email-auth-section">
+        <!-- Tab Buttons -->
+        <div class="auth-tabs">
+          <button 
+            type="button" 
+            class="tab-button"
+            [class.active]="authMode === 'login'"
+            (click)="setAuthMode('login')">
+            Sign In
+          </button>
+          <button 
+            type="button" 
+            class="tab-button"
+            [class.active]="authMode === 'register'"
+            (click)="setAuthMode('register')">
+            Sign Up
+          </button>
+        </div>
+
+        <!-- Email Form -->
+        <form (ngSubmit)="submitEmailAuth()" class="email-form" [class.loading]="isLoading">
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              id="email"
+              placeholder="Enter your email"
+              required
+              [disabled]="isLoading"
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">
+              Password
+              <span *ngIf="authMode === 'register'" class="text-xs text-muted">(min. 6 characters)</span>
+            </label>
+            <input
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              id="password"
+              [placeholder]="authMode === 'login' ? 'Enter your password' : 'Create a password'"
+              required
+              [disabled]="isLoading"
+              [autocomplete]="authMode === 'login' ? 'current-password' : 'new-password'"
+              minlength="6"
+            />
+          </div>
+
+          <!-- Additional field for registration -->
+          <div class="form-group" *ngIf="authMode === 'register'">
+            <label for="confirmPassword">Confirm password</label>
+            <input
+              type="password"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              id="confirmPassword"
+              placeholder="Confirm your password"
+              required
+              [disabled]="isLoading"
+              autocomplete="new-password"
+              minlength="6"
+            />
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="btn btn-primary submit-btn"
+            [disabled]="isLoading || !isFormValid()">
+            <span *ngIf="!isLoading && authMode === 'login'">Sign In</span>
+            <span *ngIf="!isLoading && authMode === 'register'">Create Account</span>
+            <span *ngIf="isLoading">
+              <span class="spinner-sm"></span>
+              {{ authMode === 'login' ? 'Signing in...' : 'Creating account...' }}
+            </span>
+          </button>
+
+          <!-- Forgot Password Link (only for login) -->
+          <div class="forgot-password" *ngIf="authMode === 'login'">
+            <button type="button" class="link-button text-sm" (click)="showForgotPassword()">
+              Forgot your password?
+            </button>
+          </div>
+        </form>
+
+        <!-- Terms and Privacy (only for registration) -->
+        <div class="terms-section text-center" *ngIf="authMode === 'register'">
+          <p class="text-xs text-muted">
+            By creating an account, you agree to our 
+            <a href="#" class="link">Terms of Service</a> and 
+            <a href="#" class="link">Privacy Policy</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-message">
+        <div class="error-content">
+          <span class="error-icon">⚠️</span>
+          <span class="error-text">{{ error }}</span>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="success-message">
+        <div class="success-content">
+          <span class="success-icon">✅</span>
+          <span class="success-text">{{ successMessage }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
