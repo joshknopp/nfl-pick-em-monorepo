@@ -39,7 +39,7 @@
             >
           </div>
         </div>
-        <!-- Winner Prediction Radio Buttons -->
+        <!-- Pick Radio Buttons -->
         <div>
           <div class="radio-group">
             <div class="radio-button">
@@ -48,8 +48,8 @@
                 [id]="'away-' + getGameId(game)"
                 [name]="'game-' + getGameId(game)"
                 [value]="game.awayTeam"
-                [checked]="getSelectedPrediction(game) === game.awayTeam"
-                (change)="onPredictionChange(game, game.awayTeam)"
+                [checked]="getSelectedPick(game) === game.awayTeam"
+                (change)="onPickChange(game, game.awayTeam)"
               />
               <label [for]="'away-' + getGameId(game)"
                 >{{ game.awayTeam }}</label
@@ -64,8 +64,8 @@
                 [id]="'home-' + getGameId(game)"
                 [name]="'game-' + getGameId(game)"
                 [value]="game.homeTeam"
-                [checked]="getSelectedPrediction(game) === game.homeTeam"
-                (change)="onPredictionChange(game, game.homeTeam)"
+                [checked]="getSelectedPick(game) === game.homeTeam"
+                (change)="onPickChange(game, game.homeTeam)"
               />
               <label [for]="'home-' + getGameId(game)"
                 >{{ game.homeTeam }}</label

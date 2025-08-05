@@ -6,9 +6,9 @@ import { GameDto, PickDTO, serializeGame } from 'libs';
 import { PicksService } from './picks.service';
 type Game = GameDto;
 
-interface GamePrediction {
+interface GamePick {
   gameId: string;
-  prediction: string;
+  pickWinner: string;
 }
 
 @Component({
@@ -20,7 +20,7 @@ interface GamePrediction {
 })
 export class GamesComponent implements OnInit {
   games: Game[] = [];
-  predictions: Map<string, string> = new Map();
+  picks: Map<string, string> = new Map();
   filteredGames: Game[] = [];
   selectedWeek = 1;
   minWeek = 1;
@@ -69,7 +69,7 @@ export class GamesComponent implements OnInit {
     });
   }
 
-  private getUserPicksPromise(): Promise<GamePrediction[]> {
+  private getUserPicksPromise(): Promise<GamePick[]> {
     // Replace with actual picksService call
     return new Promise((resolve, reject) => {
       if (!this.picksService || !this.picksService.getUserPicks) {
@@ -80,10 +80,10 @@ export class GamesComponent implements OnInit {
       if (obs && typeof obs.subscribe === 'function') {
         obs.subscribe({
           next: (pickDtos: PickDTO[]) => {
-            // Map PickDTO[] to GamePrediction[]
+            // Map PickDTO[] to GamePick[]
             const mapped = pickDtos.map((dto) => ({
               gameId: serializeGame(dto),
-              prediction: dto.pickWinner,
+              pickWinner: dto.pickWinner,
             }));
             resolve(mapped);
           },
@@ -101,15 +101,15 @@ export class GamesComponent implements OnInit {
     this.selectedWeek = this.getInitialWeek();
   }
 
-  private handlePicksLoaded(picks: GamePrediction[]) {
+  private handlePicksLoaded(picks: GamePick[]) {
     // Preselect radio buttons for games with existing picks
     picks.forEach((pick) => {
-      this.predictions.set(pick.gameId, pick.prediction);
+      this.picks.set(pick.gameId, pick.pickWinner);
     });
   }
 
-  getSelectedPrediction(game: Game): string | undefined {
-    return this.predictions.get(this.getGameId(game));
+  getSelectedPick(game: Game): string | undefined {
+    return this.picks.get(this.getGameId(game));
   }
 
   getCurrentWeek(): number {
@@ -131,25 +131,25 @@ export class GamesComponent implements OnInit {
     return serializeGame(game);
   };
 
-  onPredictionChange(game: Game, prediction: string): void {
+  onPickChange(game: Game, pick: string): void {
     const gameId = serializeGame(game);
-    this.predictions.set(gameId, prediction);
+    this.picks.set(gameId, pick);
 
-    const pick: PickDTO = {
+    const pickDto: PickDTO = {
       season: game.season,
       week: game.week,
       homeTeam: game.homeTeam,
       awayTeam: game.awayTeam,
-      pickWinner: prediction,
+      pickWinner: pick,
     };
-    this.picksService.saveUserPick(pick).subscribe({
+    this.picksService.saveUserPick(pickDto).subscribe({
       error: (error) => {
         console.error('Error saving user pick:', error);
       },
     });
 
     // Log for now - user mentioned they'll handle the saving logic later
-    console.log(`Picked ${prediction} for ${serializeGame(game)}`);
+    console.log(`Picked ${pick} for ${serializeGame(game)}`);
   }
 
   setWeekBounds() {
