@@ -167,7 +167,7 @@ input[type="password"]:focus {
   box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
-/* Radio button styles for predictions */
+/* Radio button styles for picks */
 .radio-group {
   display: flex;
   gap: var(--spacing-sm);

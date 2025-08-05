@@ -1,6 +1,6 @@
 /* Login page layout */
 .login-page {
-  min-height: 100vh;
+  margin-top: var(--spacing-2xl);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,7 +19,11 @@
 
 /* Header section */
 .login-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
   color: white;
   padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-xl);
 }
@@ -39,6 +43,7 @@
   margin: 0;
   opacity: 0.9;
   font-size: 0.95rem;
+  color: lightgray;
 }
 
 /* Social login section */
@@ -246,30 +251,30 @@
   .login-page {
     padding: var(--spacing-md) 0;
   }
-  
+
   .login-container {
     margin: 0 var(--spacing-md);
     border-radius: var(--border-radius);
   }
-  
+
   .login-header {
     padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
   }
-  
+
   .app-title {
     font-size: 1.5rem;
   }
-  
+
   .social-login-section,
   .email-auth-section {
     padding-left: var(--spacing-md);
     padding-right: var(--spacing-md);
   }
-  
+
   .auth-tabs {
     margin-bottom: var(--spacing-md);
   }
-  
+
   .tab-button {
     padding: var(--spacing-sm);
     font-size: 0.8125rem;
@@ -288,7 +293,7 @@
   .login-container {
     animation: slideUp 0.3s ease-out;
   }
-  
+
   @keyframes slideUp {
     from {
       opacity: 0;

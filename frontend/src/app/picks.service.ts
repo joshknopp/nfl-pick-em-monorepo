@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 
 import { PickDTO } from 'libs';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -9,15 +10,15 @@ import { ApiService } from './api.service';
 export class PicksService {
   private apiService = inject(ApiService);
 
-  async getUserPicks(): Promise<PickDTO[]> {
-    return await this.apiService.get('picks/user');
+  getUserPicks(): Observable<PickDTO[]> {
+    return this.apiService.get('picks');
   }
 
-  async getLeaguePicks(): Promise<PickDTO[]> {
-    return await this.apiService.get('picks/league');
+  getLeaguePicks(): Observable<PickDTO[]> {
+    return this.apiService.get('picks/league');
   }
 
-  async saveUserPick(pick: PickDTO): Promise<PickDTO> {
-    return await this.apiService.post('picks/user', pick);
+  saveUserPick(pick: PickDTO): Observable<PickDTO> {
+    return this.apiService.post('picks', pick);
   }
 }

@@ -2,12 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
 
-import { GameDto } from 'libs';
+import { GameDto, PickDTO, serializeGame } from 'libs';
+import { PicksService } from './picks.service';
 type Game = GameDto;
 
-interface GamePrediction {
+interface GamePick {
   gameId: string;
-  prediction: string;
+  pickWinner: string;
 }
 
 @Component({
@@ -19,37 +20,96 @@ interface GamePrediction {
 })
 export class GamesComponent implements OnInit {
   games: Game[] = [];
-  predictions: Map<string, string> = new Map();
+  picks: Map<string, string> = new Map();
   filteredGames: Game[] = [];
   selectedWeek = 1;
   minWeek = 1;
   maxWeek = 1;
+  isLoading = true;
 
   private apiService = inject(ApiService);
+  private picksService = inject(PicksService);
 
-  async ngOnInit() {
-    try {
-      const games = await this.apiService.get('games');
-      games.sort((a: Game, b: Game) => {
-        if (a.season !== b.season) return a.season - b.season;
-        if (a.week !== b.week) return a.week - b.week;
-        return a.kickoffTime.localeCompare(b.kickoffTime);
-      });
-      this.games = games;
-      this.setWeekBounds();
-      this.selectedWeek = this.getInitialWeek();
-      this.filterGamesByWeek();
-    } catch (error) {
-      console.error('Error fetching games:', error);
-    }
+  ngOnInit() {
+    this.loadGamesAndPicks();
   }
 
-  getGameId(game: Game): string {
-    const season = game.season;
-    const week = String(game.week).padStart(2, '0');
-    const away = game.awayTeam.toLowerCase();
-    const home = game.homeTeam.toLowerCase();
-    return `${season}-${week}-${away}-at-${home}`;
+  getGameId(dto: GameDto) {
+    return serializeGame(dto);
+  }
+
+  private loadGamesAndPicks() {
+    this.isLoading = true;
+    Promise.all([this.getGamesPromise(), this.getUserPicksPromise()])
+      .then(([games, picks]) => {
+        this.handleGamesLoaded(games);
+        this.handlePicksLoaded(picks);
+        this.isLoading = false;
+        this.filterGamesByWeek();
+      })
+      .catch((error) => {
+        console.error('Error loading games or picks:', error);
+        this.isLoading = false;
+      });
+  }
+
+  private getGamesPromise(): Promise<Game[]> {
+    return new Promise((resolve, reject) => {
+      this.apiService.get('games').subscribe({
+        next: (games: Game[]) => {
+          games.sort((a: Game, b: Game) => {
+            if (a.season !== b.season) return a.season - b.season;
+            if (a.week !== b.week) return a.week - b.week;
+            return a.kickoffTime.localeCompare(b.kickoffTime);
+          });
+          resolve(games);
+        },
+        error: reject,
+      });
+    });
+  }
+
+  private getUserPicksPromise(): Promise<GamePick[]> {
+    // Replace with actual picksService call
+    return new Promise((resolve, reject) => {
+      if (!this.picksService || !this.picksService.getUserPicks) {
+        resolve([]);
+        return;
+      }
+      const obs = this.picksService.getUserPicks();
+      if (obs && typeof obs.subscribe === 'function') {
+        obs.subscribe({
+          next: (pickDtos: PickDTO[]) => {
+            // Map PickDTO[] to GamePick[]
+            const mapped = pickDtos.map((dto) => ({
+              gameId: serializeGame(dto),
+              pickWinner: dto.pickWinner,
+            }));
+            resolve(mapped);
+          },
+          error: reject,
+        });
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
+  private handleGamesLoaded(games: Game[]) {
+    this.games = games;
+    this.setWeekBounds();
+    this.selectedWeek = this.getInitialWeek();
+  }
+
+  private handlePicksLoaded(picks: GamePick[]) {
+    // Preselect radio buttons for games with existing picks
+    picks.forEach((pick) => {
+      this.picks.set(pick.gameId, pick.pickWinner);
+    });
+  }
+
+  getSelectedPick(game: Game): string | undefined {
+    return this.picks.get(this.getGameId(game));
   }
 
   getCurrentWeek(): number {
@@ -68,15 +128,28 @@ export class GamesComponent implements OnInit {
   }
 
   trackGame = (index: number, game: Game): string => {
-    return this.getGameId(game);
+    return serializeGame(game);
   };
 
-  onPredictionChange(game: Game, prediction: string): void {
-    const gameId = this.getGameId(game);
-    this.predictions.set(gameId, prediction);
+  onPickChange(game: Game, pick: string): void {
+    const gameId = serializeGame(game);
+    this.picks.set(gameId, pick);
+
+    const pickDto: PickDTO = {
+      season: game.season,
+      week: game.week,
+      homeTeam: game.homeTeam,
+      awayTeam: game.awayTeam,
+      pickWinner: pick,
+    };
+    this.picksService.saveUserPick(pickDto).subscribe({
+      error: (error) => {
+        console.error('Error saving user pick:', error);
+      },
+    });
 
     // Log for now - user mentioned they'll handle the saving logic later
-    console.log(`Picked ${prediction} for ${this.getGameId(game)}`);
+    console.log(`Picked ${pick} for ${serializeGame(game)}`);
   }
 
   setWeekBounds() {

@@ -4,23 +4,24 @@
       <!-- Logo/Header Section -->
       <div class="login-header text-center">
         <div class="app-logo">
-          <div class="logo-icon">🏈</div>
-          <h1 class="app-title">NFL Pick 'Em</h1>
-          <p class="app-subtitle text-muted">Make your predictions and compete with friends</p>
+          <!-- <div class="logo-icon">🏈</div>
+          <h1 class="app-title">NFL Pick 'Em</h1> -->
+          <p class="app-subtitle text-muted">Go get 'em, sport.</p>
         </div>
       </div>
 
       <!-- Social Login Section -->
       <div class="social-login-section">
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="btn btn-google"
           (click)="loginWithGoogle()"
-          [disabled]="isLoading">
+          [disabled]="isLoading"
+        >
           <span *ngIf="!isLoading">Continue with Google</span>
           <span *ngIf="isLoading">Signing in...</span>
         </button>
-        
+
         <div class="divider">
           <span class="divider-text">or</span>
         </div>
@@ -30,24 +31,30 @@
       <div class="email-auth-section">
         <!-- Tab Buttons -->
         <div class="auth-tabs">
-          <button 
-            type="button" 
+          <button
+            type="button"
             class="tab-button"
             [class.active]="authMode === 'login'"
-            (click)="setAuthMode('login')">
+            (click)="setAuthMode('login')"
+          >
             Sign In
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
             class="tab-button"
             [class.active]="authMode === 'register'"
-            (click)="setAuthMode('register')">
+            (click)="setAuthMode('register')"
+          >
             Sign Up
           </button>
         </div>
 
         <!-- Email Form -->
-        <form (ngSubmit)="submitEmailAuth()" class="email-form" [class.loading]="isLoading">
+        <form
+          (ngSubmit)="submitEmailAuth()"
+          class="email-form"
+          [class.loading]="isLoading"
+        >
           <div class="form-group">
             <label for="email">Email address</label>
             <input
@@ -65,7 +72,9 @@
           <div class="form-group">
             <label for="password">
               Password
-              <span *ngIf="authMode === 'register'" class="text-xs text-muted">(min. 6 characters)</span>
+              <span *ngIf="authMode === 'register'" class="text-xs text-muted"
+                >(min. 6 characters)</span
+              >
             </label>
             <input
               type="password"
@@ -97,21 +106,29 @@
           </div>
 
           <!-- Submit Button -->
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             class="btn btn-primary submit-btn"
-            [disabled]="isLoading || !isFormValid()">
+            [disabled]="isLoading || !isFormValid()"
+          >
             <span *ngIf="!isLoading && authMode === 'login'">Sign In</span>
-            <span *ngIf="!isLoading && authMode === 'register'">Create Account</span>
+            <span *ngIf="!isLoading && authMode === 'register'"
+              >Create Account</span
+            >
             <span *ngIf="isLoading">
               <span class="spinner-sm"></span>
-              {{ authMode === 'login' ? 'Signing in...' : 'Creating account...' }}
+              {{ authMode === 'login' ? 'Signing in...' : 'Creating account...'
+              }}
             </span>
           </button>
 
           <!-- Forgot Password Link (only for login) -->
           <div class="forgot-password" *ngIf="authMode === 'login'">
-            <button type="button" class="link-button text-sm" (click)="showForgotPassword()">
+            <button
+              type="button"
+              class="link-button text-sm"
+              (click)="showForgotPassword()"
+            >
               Forgot your password?
             </button>
           </div>
@@ -120,8 +137,8 @@
         <!-- Terms and Privacy (only for registration) -->
         <div class="terms-section text-center" *ngIf="authMode === 'register'">
           <p class="text-xs text-muted">
-            By creating an account, you agree to our 
-            <a href="#" class="link">Terms of Service</a> and 
+            By creating an account, you agree to our
+            <a href="#" class="link">Terms of Service</a> and
             <a href="#" class="link">Privacy Policy</a>
           </p>
         </div>

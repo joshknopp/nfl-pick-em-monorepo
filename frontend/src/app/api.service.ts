@@ -1,38 +1,40 @@
 import { Injectable, inject } from '@angular/core';
-import axios, { AxiosRequestConfig } from 'axios';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { EnvironmentService } from './environment.service';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private environmentService = inject(EnvironmentService);
   private authService = inject(AuthService);
+  private http = inject(HttpClient);
 
-  async get(path: string, config?: { anonymous?: boolean }) {
+  get(path: string, config?: { anonymous?: boolean }): Observable<any> {
     const url = `${this.environmentService.getApiUrl()}/${path}`;
-    const headers: Record<string, string> = {};
+    let headers = new HttpHeaders();
     if (!config?.anonymous) {
       const token = this.authService.getToken();
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers = headers.set('Authorization', `Bearer ${token}`);
       }
     }
-    const axiosConfig: AxiosRequestConfig = { headers };
-    const response = await axios.get(url, axiosConfig);
-    return response.data;
+    return this.http.get(url, { headers });
   }
 
-  async post(path: string, data: any, config?: { anonymous?: boolean }) {
+  post(
+    path: string,
+    data: any,
+    config?: { anonymous?: boolean }
+  ): Observable<any> {
     const url = `${this.environmentService.getApiUrl()}/${path}`;
-    const headers: Record<string, string> = {};
+    let headers = new HttpHeaders();
     if (!config?.anonymous) {
       const token = this.authService.getToken();
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers = headers.set('Authorization', `Bearer ${token}`);
       }
     }
-    const axiosConfig: AxiosRequestConfig = { headers };
-    const response = await axios.post(url, data, axiosConfig);
-    return response.data;
+    return this.http.post(url, data, { headers });
   }
 }
