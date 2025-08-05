@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PickDTO } from 'libs';
+import { PickDTO, serializeGame } from 'libs';
 import * as admin from 'firebase-admin';
 
 interface User {
@@ -30,8 +30,19 @@ export class PicksService {
   }
 
   async saveUserPick(user: User, picksDto: PickDTO): Promise<PickDTO> {
-    const pick = { ...picksDto, user: user.id };
-    await admin.firestore().collection('picks').add(pick);
+    const pick = {
+      ...picksDto,
+      user: user.id,
+    };
+    await admin
+      .firestore()
+      .collection('picks')
+      .doc(this.getPickKey(user, picksDto))
+      .set(pick);
     return pick;
+  }
+
+  private getPickKey(user: User, pick: PickDTO): string {
+    return `${user.id}-${serializeGame(pick)}`;
   }
 }

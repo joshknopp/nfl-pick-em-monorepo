@@ -1,8 +1,6 @@
-export interface GameDto {
-  season: number;
-  awayTeam: string;
-  homeTeam: string;
+import { SerializableGame } from './serializable-game';
+
+export interface GameDto extends SerializableGame {
   kickoffTime: string; // ISO string for serialization
-  week: number;
   winner?: string | null;
 }

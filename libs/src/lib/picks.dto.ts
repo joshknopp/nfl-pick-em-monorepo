@@ -1,8 +1,6 @@
-export interface PickDTO {
-  season: number;
-  week: number;
-  homeTeam: string;
-  awayTeam: string;
+import { SerializableGame } from './serializable-game';
+
+export interface PickDTO extends SerializableGame {
   pickWinner: string;
   user?: string;
 }

@@ -48,6 +48,7 @@
                 [id]="'away-' + getGameId(game)"
                 [name]="'game-' + getGameId(game)"
                 [value]="game.awayTeam"
+                [checked]="getSelectedPrediction(game) === game.awayTeam"
                 (change)="onPredictionChange(game, game.awayTeam)"
               />
               <label [for]="'away-' + getGameId(game)"
@@ -63,6 +64,7 @@
                 [id]="'home-' + getGameId(game)"
                 [name]="'game-' + getGameId(game)"
                 [value]="game.homeTeam"
+                [checked]="getSelectedPrediction(game) === game.homeTeam"
                 (change)="onPredictionChange(game, game.homeTeam)"
               />
               <label [for]="'home-' + getGameId(game)"
