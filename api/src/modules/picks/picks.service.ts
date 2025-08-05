@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PickDTO } from 'libs';
 import * as admin from 'firebase-admin';
 
 interface User {
@@ -12,6 +11,11 @@ interface SerializableGame {
   week: number;
   awayTeam: string;
   homeTeam: string;
+}
+
+interface PickDTO extends SerializableGame {
+  pickWinner: string;
+  user?: string;
 }
 
 @Injectable()
