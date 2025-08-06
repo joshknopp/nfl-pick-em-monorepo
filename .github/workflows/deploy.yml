@@ -39,9 +39,7 @@ jobs:
 
       - name: Copy deployment files
         run: |
-          # The | character allows for a multi-line script.
-          # We're now running these commands directly in the shell.
-          cp api/src/main.ts dist/api/main.ts
+          # Copy the built main.js and package.json to the dist/api directory for deployment.
           cp api/package.json dist/api/package.json
 
       - name: Deploy API to Cloud Functions
