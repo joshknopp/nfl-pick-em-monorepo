@@ -39,14 +39,12 @@ async function createNestApp() {
   return app;
 }
 
-// For Google Cloud Functions
-export const startServer = expressApp;
+createNestApp();
 
-// For local development
 if (require.main === module) {
-  createNestApp().then(app => {
-    app.listen(3000, () => {
+  expressApp.listen(3000, () => {
       console.log('API listening on http://localhost:3000');
-    });
   });
 }
+
+export const startServer = expressApp;
