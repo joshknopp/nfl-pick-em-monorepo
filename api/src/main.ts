@@ -1,3 +1,5 @@
+// src/main.ts
+
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
@@ -10,7 +12,10 @@ dotenv.config();
 const expressApp = express();
 
 async function createNestApp() {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+  const app = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressApp)
+  );
 
   const corsRegex = new RegExp(process.env.CORS_REGEX ?? '');
   app.enableCors({
@@ -39,12 +44,32 @@ async function createNestApp() {
   return app;
 }
 
-createNestApp();
+// Call the initialization function, but wrap it so it's only done once.
+let nestApp: any;
 
+// A promise that resolves when the app is ready.
+const ready = (async () => {
+  if (!nestApp) {
+    nestApp = await createNestApp();
+  }
+})();
+
+// This is the new entry point for Cloud Functions.
+// The name of this function must match your --entry-point flag.
+export const startServer = (req: any, res: any) => {
+  // Use a promise to ensure the app is ready before processing the request.
+  ready.then(() => {
+    // The NestJS app is initialized, so we can now forward the request
+    // to the express instance.
+    expressApp(req, res);
+  });
+};
+
+// For local development
 if (require.main === module) {
-  expressApp.listen(3000, () => {
+  ready.then(() => {
+    expressApp.listen(3000, () => {
       console.log('API listening on http://localhost:3000');
+    });
   });
 }
-
-export const startServer = expressApp;
