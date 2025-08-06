@@ -2,10 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 import * as dotenv from 'dotenv';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
+
 dotenv.config();
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const expressApp = express();
+
+async function createNestApp() {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
   const corsRegex = new RegExp(process.env.CORS_REGEX ?? '');
   app.enableCors({
@@ -30,6 +35,18 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  await app.listen(3000);
+  await app.init();
+  return app;
 }
-bootstrap();
+
+// For Google Cloud Functions
+export const startServer = expressApp;
+
+// For local development
+if (require.main === module) {
+  createNestApp().then(app => {
+    app.listen(3000, () => {
+      console.log('API listening on http://localhost:3000');
+    });
+  });
+}
