@@ -34,16 +34,9 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Build API for production
-        # Removed --with-dependencies as it is not supported by webpack-cli and causes build to fail.
         run: npx nx run api:build --prod
 
-      - name: Copy deployment files
-        run: |
-          # Copy the built main.js and package.json to the dist/api directory for deployment.
-          cp api/package.json dist/api/package.json
-
       - name: Deploy API to Cloud Functions
-        # The gcloud command now runs on its own without any extra flags.
         run: >
           gcloud functions deploy nfl-pick-em-api
           --gen2
