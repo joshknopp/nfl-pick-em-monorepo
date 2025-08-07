@@ -1,12 +1,7 @@
-// src/main.ts
-
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app/app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
-import { Request, Response } from 'express'; // Import types for clarity
+import { AppModule } from './app/app.module';
 
 dotenv.config();
 

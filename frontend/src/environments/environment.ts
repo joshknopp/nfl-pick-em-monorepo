@@ -1,6 +1,6 @@
 export const environment = {
   // Replace with actual API URL
-  apiUrl: 'https://congenial-invention-7vq755x9j5fvr7-3000.app.github.dev',
+  apiUrl: 'https://nfl-pick-em-api-826860165734.us-east1.run.app',
 
   firebaseConfig: {
     apiKey: 'AIzaSyAVOlaBZbUdsWdeL0wmO3-vbNC2xvcXlE4',
