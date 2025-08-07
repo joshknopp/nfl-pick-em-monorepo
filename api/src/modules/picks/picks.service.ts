@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 
 interface User {
@@ -16,6 +16,12 @@ interface SerializableGame {
 interface PickDTO extends SerializableGame {
   pickWinner: string;
   user?: string;
+}
+
+// Represents the structure of a game document in Firestore
+interface GameDoc {
+  kickoffTime: admin.firestore.Timestamp;
+  // ... other game properties
 }
 
 @Injectable()
@@ -41,6 +47,27 @@ export class PicksService {
   }
 
   async saveUserPick(user: User, picksDto: PickDTO): Promise<PickDTO> {
+    // 1. Construct the game ID
+    const gameId = this.serializeGame(picksDto);
+
+    // 2. Fetch the corresponding game document
+    const gameDocRef = admin.firestore().collection('games').doc(gameId);
+    const gameDoc = await gameDocRef.get();
+
+    // 3. Check if the game exists and if it has started
+    if (!gameDoc.exists) {
+      throw new BadRequestException('Game not found.');
+    }
+
+    const gameData = gameDoc.data() as GameDoc;
+
+    // The `kickoffTime` must be a Firestore Timestamp object.
+    // We convert it to a JavaScript Date object for easy comparison.
+    if (gameData.kickoffTime.toDate() < new Date()) {
+      throw new BadRequestException('The game has already started. You cannot submit or update a pick.');
+    }
+
+    // 4. If the game has not started, proceed to save the pick
     const pick = {
       ...picksDto,
       user: user.id,
@@ -50,7 +77,8 @@ export class PicksService {
       .firestore()
       .collection('picks')
       .doc(this.getPickKey(user, picksDto))
-      .set(pick);
+      .set(pick, { merge: true }); // Using { merge: true } for a create or update
+
     return pick;
   }
 
@@ -66,3 +94,4 @@ export class PicksService {
     return `${season}-${week}-${away}-at-${home}`;
   }
 }
+
