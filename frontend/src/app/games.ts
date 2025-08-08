@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 
 import { GameDto, PickDTO, serializeGame } from 'libs';
 import { PicksService } from './picks.service';
+import { ToastService } from './toast.service';
 type Game = GameDto;
 
 interface GamePick {
@@ -29,6 +30,7 @@ export class GamesComponent implements OnInit {
 
   private apiService = inject(ApiService);
   private picksService = inject(PicksService);
+  private toastService = inject(ToastService);
 
   ngOnInit() {
     this.loadGamesAndPicks();
@@ -133,6 +135,7 @@ export class GamesComponent implements OnInit {
 
   onPickChange(game: Game, pick: string): void {
     const gameId = serializeGame(game);
+    const oldPick = this.picks.get(gameId);
     this.picks.set(gameId, pick);
 
     const pickDto: PickDTO = {
@@ -144,12 +147,18 @@ export class GamesComponent implements OnInit {
     };
     this.picksService.saveUserPick(pickDto).subscribe({
       error: (error) => {
-        console.error('Error saving user pick:', error);
+        console.error('Error saving user pick:', error, pickDto);
+        this.toastService.show(
+          `Failed to pick ${pickDto.pickWinner} for week ${pickDto.week}.`,
+          'error'
+        );
+        if (oldPick) {
+          this.picks.set(gameId, oldPick);
+        } else {
+          this.picks.delete(gameId);
+        }
       },
     });
-
-    // Log for now - user mentioned they'll handle the saving logic later
-    console.log(`Picked ${pick} for ${serializeGame(game)}`);
   }
 
   setWeekBounds() {
