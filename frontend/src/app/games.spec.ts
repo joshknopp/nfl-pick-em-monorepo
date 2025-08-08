@@ -1,11 +1,11 @@
-import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { GameDto } from 'libs';
 import { of, throwError } from 'rxjs';
-import { GamesComponent } from './games.ts';
+import { ApiService } from './api.service';
+import { GamesComponent } from './games';
 import { PicksService } from './picks.service';
 import { ToastService } from './toast.service';
-import { ApiService } from './api.service';
-import { GameDto, PickDTO } from 'libs';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('GamesComponent', () => {
   let component: GamesComponent;
@@ -58,12 +58,17 @@ describe('GamesComponent', () => {
     component.picks.set(gameId, initialPick);
     const newPick = 'Chiefs';
 
-    (picksService.saveUserPick as jest.Mock).mockReturnValue(throwError(() => new Error('Save failed')));
+    (picksService.saveUserPick as jest.Mock).mockReturnValue(
+      throwError(() => new Error('Save failed'))
+    );
 
     component.onPickChange(mockGame, newPick);
 
     expect(picksService.saveUserPick).toHaveBeenCalled();
-    expect(toastService.show).toHaveBeenCalledWith('Error saving pick. Please try again.', 'error');
+    expect(toastService.show).toHaveBeenCalledWith(
+      'Failed to pick Chiefs for week 1.',
+      'error'
+    );
     expect(component.picks.get(gameId)).toBe(initialPick);
   });
 });

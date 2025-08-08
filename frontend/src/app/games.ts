@@ -147,8 +147,11 @@ export class GamesComponent implements OnInit {
     };
     this.picksService.saveUserPick(pickDto).subscribe({
       error: (error) => {
-        console.error('Error saving user pick:', error);
-        this.toastService.show('Error saving pick. Please try again.', 'error');
+        console.error('Error saving user pick:', error, pickDto);
+        this.toastService.show(
+          `Failed to pick ${pickDto.pickWinner} for week ${pickDto.week}.`,
+          'error'
+        );
         if (oldPick) {
           this.picks.set(gameId, oldPick);
         } else {
