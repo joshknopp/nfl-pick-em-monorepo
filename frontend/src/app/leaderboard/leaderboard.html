@@ -31,7 +31,7 @@
           <th>User</th>
           <th>Record</th>
           <th *ngFor="let game of leaderboardData.games">
-            {{ game.awayTeam }} @ {{ game.homeTeam }}
+            {{ game.awayTeam }} &#64; {{ game.homeTeam }}
             <br />
             <small>{{ game.kickoffTime | date:'E, h:mm a' }}</small>
           </th>
