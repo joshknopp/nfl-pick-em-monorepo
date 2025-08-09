@@ -1,0 +1,64 @@
+<div class="container">
+  <div class="week-nav text-center mb-3">
+    <button
+      class="btn btn-secondary mr-2"
+      (click)="goToPreviousWeek()"
+      [disabled]="selectedWeek <= minWeek"
+    >
+      Previous
+    </button>
+    <span class="current-week-label">Week {{ selectedWeek }}</span>
+    <button
+      class="btn btn-secondary ml-2"
+      (click)="goToNextWeek()"
+      [disabled]="selectedWeek >= maxWeek"
+    >
+      Next
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p class="text-muted mt-3">Loading leaderboard...</p>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && leaderboardData" class="table-responsive">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Record</th>
+          <th *ngFor="let game of leaderboardData.games">
+            {{ game.awayTeam }} @ {{ game.homeTeam }}
+            <br />
+            <small>{{ game.kickoffTime | date:'E, h:mm a' }}</small>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let item of leaderboardData.leaderboard"
+          [class.current-user]="item.user.uid === currentUser.uid"
+        >
+          <td>{{ item.user.displayName || item.user.email }}</td>
+          <td>{{ item.wins }}-{{ item.losses }}</td>
+          <td
+            *ngFor="let pick of item.picks; let i = index"
+            [ngClass]="{
+              'pick-correct':
+                getPickResult(pick, leaderboardData.games[i]) === 'correct',
+              'pick-incorrect':
+                getPickResult(pick, leaderboardData.games[i]) === 'incorrect'
+            }"
+          >
+            <span>
+              {{ pick || '???' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

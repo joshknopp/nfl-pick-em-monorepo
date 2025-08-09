@@ -1,0 +1,27 @@
+.table-responsive {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 1;
+}
+
+.current-user {
+  background-color: #d1ecf1;
+}
+
+.masked-pick {
+  color: #ccc;
+}
+
+.pick-correct {
+  background-color: #d4edda;
+}
+
+.pick-incorrect {
+  background-color: #f8d7da;
+}

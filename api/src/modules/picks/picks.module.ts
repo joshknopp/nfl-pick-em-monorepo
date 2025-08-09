@@ -5,5 +5,6 @@ import { PicksService } from './picks.service';
 @Module({
   controllers: [PicksController],
   providers: [PicksService],
+  exports: [PicksService],
 })
 export class PicksModule {}

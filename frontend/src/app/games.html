@@ -27,6 +27,10 @@
   <div class="grid grid-auto" *ngIf="filteredGames.length > 0">
     <div
       class="card game-card"
+      [ngClass]="{
+        'pick-correct': getPickResult(game) === 'correct',
+        'pick-incorrect': getPickResult(game) === 'incorrect'
+      }"
       *ngFor="let game of filteredGames; trackBy: trackGame"
     >
       <div class="card-content">
