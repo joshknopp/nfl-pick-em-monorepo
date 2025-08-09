@@ -14,15 +14,15 @@ export class LeaderboardService {
   async getLeaderboard(week: number, currentUser: any) {
     const users = await this.getAllUsers();
     const games = await this.gamesService.getGames();
-    const weekGames = games.filter((game) => game.week === week);
+    const weekGames = games
+      .filter((game) => game.week === week)
+      .sort((a, b) => a.kickoffTime.localeCompare(b.kickoffTime));
     const picks = await this.picksService.getLeaguePicks();
 
     const leaderboard = users.map((user) => {
       const userPicks = picks.filter((pick) => pick.user === user.uid);
       const { wins, losses } = this.calculateWinLoss(userPicks, games);
-      console.log(
-        `user: ${user.displayName} (${user.uid}) - W-L: ${wins}-${losses}`
-      );
+
       return {
         user: {
           uid: user.uid,
