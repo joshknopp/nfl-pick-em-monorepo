@@ -29,7 +29,7 @@ export class LeaderboardComponent implements OnInit {
   private authService = inject(AuthService);
 
   ngOnInit() {
-    this.currentUser = this.authService.user();
+    this.currentUser = this.authService.user;
     this.loadLeaderboard();
   }
 
