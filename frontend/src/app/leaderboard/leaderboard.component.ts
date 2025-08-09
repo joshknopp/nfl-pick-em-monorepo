@@ -68,14 +68,12 @@ export class LeaderboardComponent implements OnInit {
     }
   }
 
+  // TODO move to a shared service 
   getPickResult(
     pick: string,
     game: GameDto,
   ): 'correct' | 'incorrect' | 'pending' {
     if (!game.winner) {
-      return 'pending';
-    }
-    if (!pick) {
       return 'pending';
     }
     return pick === game.winner ? 'correct' : 'incorrect';
