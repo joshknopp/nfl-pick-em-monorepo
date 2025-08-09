@@ -27,6 +27,8 @@ export class GamesComponent implements OnInit {
   minWeek = 1;
   maxWeek = 1;
   isLoading = true;
+  isSaving = new Map<string, boolean>();
+  kickoffTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   private apiService = inject(ApiService);
   private picksService = inject(PicksService);
@@ -66,7 +68,10 @@ export class GamesComponent implements OnInit {
           });
           resolve(games);
         },
-        error: reject,
+        error: (err) => {
+          console.error('Error in getGamesPromise:', err);
+          reject(err);
+        },
       });
     });
   }
@@ -101,6 +106,19 @@ export class GamesComponent implements OnInit {
     this.games = games;
     this.setWeekBounds();
     this.selectedWeek = this.getInitialWeek();
+    this.games.forEach((game) => {
+      const kickoffTime = new Date(game.kickoffTime).getTime();
+      const now = new Date().getTime();
+      if (kickoffTime > now) {
+        const gameId = this.getGameId(game);
+        const timeToKickoff = kickoffTime - now;
+        const timer = setTimeout(() => {
+          // This will trigger change detection and disable the game
+          this.kickoffTimers.delete(gameId);
+        }, timeToKickoff);
+        this.kickoffTimers.set(gameId, timer);
+      }
+    });
   }
 
   private handlePicksLoaded(picks: GamePick[]) {
@@ -133,11 +151,20 @@ export class GamesComponent implements OnInit {
     return serializeGame(game);
   };
 
+  ngOnDestroy(): void {
+    // Clear all timers when the component is destroyed to prevent memory leaks
+    this.kickoffTimers.forEach((timer) => clearTimeout(timer));
+  }
+
+  isGameLocked(game: Game): boolean {
+    return new Date(game.kickoffTime) < new Date();
+  }
+
   onPickChange(game: Game, pick: string): void {
     const gameId = serializeGame(game);
     const oldPick = this.picks.get(gameId);
     this.picks.set(gameId, pick);
-
+    this.isSaving.set(gameId, true);
     const pickDto: PickDTO = {
       season: game.season,
       week: game.week,
@@ -146,7 +173,11 @@ export class GamesComponent implements OnInit {
       pickWinner: pick,
     };
     this.picksService.saveUserPick(pickDto).subscribe({
+      next: () => {
+        this.isSaving.set(gameId, false);
+      },
       error: (error) => {
+        this.isSaving.set(gameId, false);
         console.error('Error saving user pick:', error, pickDto);
         this.toastService.show(
           `Failed to pick ${pickDto.pickWinner} for week ${pickDto.week}.`,
