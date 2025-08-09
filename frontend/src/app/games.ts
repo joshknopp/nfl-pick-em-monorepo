@@ -165,9 +165,6 @@ export class GamesComponent implements OnInit {
       return 'pending';
     }
     const pick = this.getSelectedPick(game);
-    if (!pick) {
-      return 'pending';
-    }
     return pick === game.winner ? 'correct' : 'incorrect';
   }
 
