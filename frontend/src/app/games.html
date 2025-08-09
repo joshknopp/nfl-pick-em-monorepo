@@ -30,6 +30,9 @@
       *ngFor="let game of filteredGames; trackBy: trackGame"
     >
       <div class="card-content">
+        <div class="saving-overlay" *ngIf="isSaving.get(getGameId(game))">
+          <div class="spinner"></div>
+        </div>
         <!-- Game Info Header -->
         <div class="game-header">
           <div class="game-time">
@@ -50,6 +53,7 @@
                 [value]="game.awayTeam"
                 [checked]="getSelectedPick(game) === game.awayTeam"
                 (change)="onPickChange(game, game.awayTeam)"
+                [disabled]="isSaving.get(getGameId(game)) || isGameLocked(game)"
               />
               <label [for]="'away-' + getGameId(game)"
                 >{{ game.awayTeam }}</label
@@ -66,6 +70,7 @@
                 [value]="game.homeTeam"
                 [checked]="getSelectedPick(game) === game.homeTeam"
                 (change)="onPickChange(game, game.homeTeam)"
+                [disabled]="isSaving.get(getGameId(game)) || isGameLocked(game)"
               />
               <label [for]="'home-' + getGameId(game)"
                 >{{ game.homeTeam }}</label

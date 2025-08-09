@@ -287,3 +287,44 @@
     font-size: 0.875rem;
   }
 }
+
+.radio-button input[type='radio']:checked + label {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.radio-button input[type='radio']:disabled + label {
+  background-color: #383838;
+  color: #777;
+  cursor: not-allowed;
+}
+
+.radio-button input[type='radio']:disabled:checked + label {
+  background-color: #0056b3;
+  color: #fff;
+  border-color: #0056b3;
+}
+
+.saving-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 1rem;
+}
+
+.saving-overlay .spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
