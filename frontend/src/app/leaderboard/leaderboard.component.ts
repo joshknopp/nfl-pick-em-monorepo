@@ -36,7 +36,7 @@ export class LeaderboardComponent implements OnInit {
   loadLeaderboard() {
     this.isLoading = true;
     this.apiService.get(`leaderboard?week=${this.selectedWeek}`).subscribe({
-      next: (data: any) => {
+      next: (data: LeaderboardData) => {
         this.leaderboardData = data;
         this.setWeekBounds();
         this.isLoading = false;
@@ -50,7 +50,7 @@ export class LeaderboardComponent implements OnInit {
 
   setWeekBounds() {
     // This is a placeholder. I will implement this later.
-    this.minWeek = 1;
+    this.minWeek = 0;
     this.maxWeek = 18;
   }
 
@@ -68,10 +68,10 @@ export class LeaderboardComponent implements OnInit {
     }
   }
 
-  // TODO move to a shared service 
+  // TODO move to a shared service
   getPickResult(
     pick: string,
-    game: GameDto,
+    game: GameDto
   ): 'correct' | 'incorrect' | 'pending' {
     if (!game.winner) {
       return 'pending';

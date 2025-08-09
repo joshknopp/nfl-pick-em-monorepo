@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
 
 import { GameDto, PickDTO, serializeGame } from 'libs';
@@ -19,7 +19,7 @@ interface GamePick {
   templateUrl: './games.html',
   styleUrls: ['./games.css'],
 })
-export class GamesComponent implements OnInit {
+export class GamesComponent implements OnInit, OnDestroy {
   games: Game[] = [];
   picks: Map<string, string> = new Map();
   filteredGames: Game[] = [];

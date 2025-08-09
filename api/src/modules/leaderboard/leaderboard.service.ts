@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import { GameDto } from 'libs';
+import { GameDto, PickDTO } from 'libs';
 import { GamesService } from '../games/games.service';
 import { PicksService } from '../picks/picks.service';
 
@@ -8,7 +8,7 @@ import { PicksService } from '../picks/picks.service';
 export class LeaderboardService {
   constructor(
     private readonly gamesService: GamesService,
-    private readonly picksService: PicksService,
+    private readonly picksService: PicksService
   ) {}
 
   async getLeaderboard(week: number, currentUser: any) {
@@ -20,6 +20,9 @@ export class LeaderboardService {
     const leaderboard = users.map((user) => {
       const userPicks = picks.filter((pick) => pick.user === user.uid);
       const { wins, losses } = this.calculateWinLoss(userPicks, games);
+      console.log(
+        `user: ${user.displayName} (${user.uid}) - W-L: ${wins}-${losses}`
+      );
       return {
         user: {
           uid: user.uid,
@@ -32,7 +35,7 @@ export class LeaderboardService {
           userPicks,
           weekGames,
           user.uid,
-          currentUser.id,
+          currentUser.id
         ),
       };
     });
@@ -56,25 +59,23 @@ export class LeaderboardService {
     }));
   }
 
-  private calculateWinLoss(picks: any[], games: GameDto[]) {
+  private calculateWinLoss(picks: PickDTO[], games: GameDto[]) {
     let wins = 0;
     let losses = 0;
     const completedGames = games.filter((game) => game.winner);
 
-    for (const pick of picks) {
-      const game = completedGames.find(
-        (g) =>
-          g.season === pick.season &&
-          g.week === pick.week &&
-          g.awayTeam === pick.awayTeam &&
-          g.homeTeam === pick.homeTeam,
+    for (const game of completedGames) {
+      const pick = picks.find(
+        (p) =>
+          p.season === game.season &&
+          p.week === game.week &&
+          p.awayTeam === game.awayTeam &&
+          p.homeTeam === game.homeTeam
       );
-      if (game) {
-        if (pick.pickWinner === game.winner) {
-          wins++;
-        } else {
-          losses++;
-        }
+      if (pick?.pickWinner === game.winner) {
+        wins++;
+      } else {
+        losses++;
       }
     }
 
@@ -82,10 +83,10 @@ export class LeaderboardService {
   }
 
   private getPicksForWeek(
-    picks: any[],
+    picks: PickDTO[],
     weekGames: GameDto[],
     userId: string,
-    currentUserId: string,
+    currentUserId: string
   ) {
     const weekPicks = [];
     for (const game of weekGames) {
@@ -94,7 +95,7 @@ export class LeaderboardService {
           p.season === game.season &&
           p.week === game.week &&
           p.awayTeam === game.awayTeam &&
-          p.homeTeam === game.homeTeam,
+          p.homeTeam === game.homeTeam
       );
 
       const kickoff = new Date(game.kickoffTime);
