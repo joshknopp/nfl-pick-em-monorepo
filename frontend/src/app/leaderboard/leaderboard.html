@@ -44,15 +44,17 @@
         >
           <td>{{ item.user.displayName || item.user.email }}</td>
           <td>{{ item.wins }}-{{ item.losses }}</td>
-          <td *ngFor="let pick of item.picks; let i = index">
-            <span
-              *ngIf="isPickMasked(leaderboardData.games[i], item.user.uid)"
-              class="masked-pick"
-            >
-              ???
-            </span>
-            <span *ngIf="!isPickMasked(leaderboardData.games[i], item.user.uid)">
-              {{ pick }}
+          <td
+            *ngFor="let pick of item.picks; let i = index"
+            [ngClass]="{
+              'pick-correct':
+                getPickResult(pick, leaderboardData.games[i]) === 'correct',
+              'pick-incorrect':
+                getPickResult(pick, leaderboardData.games[i]) === 'incorrect'
+            }"
+          >
+            <span>
+              {{ pick || '???' }}
             </span>
           </td>
         </tr>

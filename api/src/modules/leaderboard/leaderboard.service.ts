@@ -11,7 +11,7 @@ export class LeaderboardService {
     private readonly picksService: PicksService,
   ) {}
 
-  async getLeaderboard(week: number) {
+  async getLeaderboard(week: number, currentUser: any) {
     const users = await this.getAllUsers();
     const games = await this.gamesService.getGames();
     const weekGames = games.filter((game) => game.week === week);
@@ -28,7 +28,12 @@ export class LeaderboardService {
         },
         wins,
         losses,
-        picks: this.getPicksForWeek(userPicks, weekGames),
+        picks: this.getPicksForWeek(
+          userPicks,
+          weekGames,
+          user.uid,
+          currentUser.id,
+        ),
       };
     });
 
@@ -76,7 +81,12 @@ export class LeaderboardService {
     return { wins, losses };
   }
 
-  private getPicksForWeek(picks: any[], weekGames: GameDto[]) {
+  private getPicksForWeek(
+    picks: any[],
+    weekGames: GameDto[],
+    userId: string,
+    currentUserId: string,
+  ) {
     const weekPicks = [];
     for (const game of weekGames) {
       const pick = picks.find(
@@ -86,7 +96,16 @@ export class LeaderboardService {
           p.awayTeam === game.awayTeam &&
           p.homeTeam === game.homeTeam,
       );
-      weekPicks.push(pick ? pick.pickWinner : null);
+
+      const kickoff = new Date(game.kickoffTime);
+      const now = new Date();
+      const isGameLocked = kickoff <= now;
+
+      if (userId === currentUserId || isGameLocked) {
+        weekPicks.push(pick ? pick.pickWinner : null);
+      } else {
+        weekPicks.push(null);
+      }
     }
     return weekPicks;
   }

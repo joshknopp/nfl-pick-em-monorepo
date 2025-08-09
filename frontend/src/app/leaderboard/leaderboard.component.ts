@@ -3,7 +3,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { AuthService } from '../auth.service';
 import { GameDto } from 'libs';
-import { interval, map, Observable, startWith } from 'rxjs';
 
 interface LeaderboardData {
   week: number;
@@ -25,17 +24,9 @@ export class LeaderboardComponent implements OnInit {
   minWeek = 1;
   maxWeek = 1;
   currentUser: any;
-  today: Observable<Date>;
 
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
-
-  constructor() {
-    this.today = interval(1000).pipe(
-      startWith(0),
-      map(() => new Date()),
-    );
-  }
 
   ngOnInit() {
     this.currentUser = this.authService.user();
@@ -77,9 +68,16 @@ export class LeaderboardComponent implements OnInit {
     }
   }
 
-  isPickMasked(game: GameDto, userId: string): boolean {
-    const kickoff = new Date(game.kickoffTime);
-    const now = new Date();
-    return kickoff > now && userId !== this.currentUser.uid;
+  getPickResult(
+    pick: string,
+    game: GameDto,
+  ): 'correct' | 'incorrect' | 'pending' {
+    if (!game.winner) {
+      return 'pending';
+    }
+    if (!pick) {
+      return 'pending';
+    }
+    return pick === game.winner ? 'correct' : 'incorrect';
   }
 }

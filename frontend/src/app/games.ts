@@ -160,6 +160,17 @@ export class GamesComponent implements OnInit {
     return new Date(game.kickoffTime) < new Date();
   }
 
+  getPickResult(game: Game): 'correct' | 'incorrect' | 'pending' {
+    if (!game.winner) {
+      return 'pending';
+    }
+    const pick = this.getSelectedPick(game);
+    if (!pick) {
+      return 'pending';
+    }
+    return pick === game.winner ? 'correct' : 'incorrect';
+  }
+
   onPickChange(game: Game, pick: string): void {
     const gameId = serializeGame(game);
     const oldPick = this.picks.get(gameId);

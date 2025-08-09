@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -18,7 +18,10 @@ export class LeaderboardController {
   @Get()
   @ApiOperation({ summary: 'Get leaderboard data for a given week' })
   @ApiResponse({ status: 200, description: 'Leaderboard data.' })
-  async getLeaderboard(@Query('week') week: string) {
-    return await this.leaderboardService.getLeaderboard(parseInt(week, 10));
+  async getLeaderboard(@Query('week') week: string, @Req() req) {
+    return await this.leaderboardService.getLeaderboard(
+      parseInt(week, 10),
+      req.user,
+    );
   }
 }

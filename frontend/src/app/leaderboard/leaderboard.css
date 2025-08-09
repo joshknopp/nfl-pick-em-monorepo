@@ -17,3 +17,11 @@
 .masked-pick {
   color: #ccc;
 }
+
+.pick-correct {
+  background-color: #d4edda;
+}
+
+.pick-incorrect {
+  background-color: #f8d7da;
+}
