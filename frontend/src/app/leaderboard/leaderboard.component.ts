@@ -78,4 +78,32 @@ export class LeaderboardComponent implements OnInit {
     }
     return pick === game.winner ? 'correct' : 'incorrect';
   }
+
+  public getGameTooltip(game: GameDto): string {
+    const kickoff = new Date(game.kickoffTime);
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      timeZone: 'America/New_York',
+    };
+
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const parts = formatter.formatToParts(kickoff);
+
+    const partValue = (type: string) =>
+      parts.find((p) => p.type === type)?.value;
+
+    const weekday = partValue('weekday');
+    const month = partValue('month');
+    const day = partValue('day');
+    const hour = partValue('hour');
+    const minute = partValue('minute');
+    const dayPeriod = partValue('dayPeriod')?.toUpperCase();
+
+    return `${weekday}, ${month} ${day}, ${hour}:${minute} ${dayPeriod} ET`;
+  }
 }
