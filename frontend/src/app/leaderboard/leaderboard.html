@@ -1,21 +1,11 @@
 <div class="container">
-  <div class="week-nav text-center mb-3">
-    <button
-      class="btn btn-secondary mr-2"
-      (click)="goToPreviousWeek()"
-      [disabled]="selectedWeek <= minWeek"
-    >
-      Previous
-    </button>
-    <span class="current-week-label">Week {{ selectedWeek }}</span>
-    <button
-      class="btn btn-secondary ml-2"
-      (click)="goToNextWeek()"
-      [disabled]="selectedWeek >= maxWeek"
-    >
-      Next
-    </button>
-  </div>
+  <app-week-selector
+    [selectedWeek]="selectedWeek"
+    [minWeek]="minWeek"
+    [maxWeek]="maxWeek"
+    (previous)="goToPreviousWeek()"
+    (next)="goToNextWeek()"
+  ></app-week-selector>
 
   <div *ngIf="isLoading" class="text-center">
     <div class="loading-spinner">

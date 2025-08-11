@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
+import { WeekSelectorComponent } from './week-selector/week-selector.component';
 
 import { GameDto, PickDTO, serializeGame } from 'libs';
 import { PicksService } from './picks.service';
@@ -15,7 +16,7 @@ interface GamePick {
 @Component({
   selector: 'app-games',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WeekSelectorComponent],
   templateUrl: './games.html',
   styleUrls: ['./games.css'],
 })
