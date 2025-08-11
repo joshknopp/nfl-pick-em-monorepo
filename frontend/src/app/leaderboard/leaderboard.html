@@ -30,10 +30,18 @@
         <tr>
           <th>User</th>
           <th>Record</th>
-          <th *ngFor="let game of leaderboardData.games">
-            {{ game.awayTeam }} &#64; {{ game.homeTeam }}
+          <th
+            *ngFor="let game of leaderboardData.games"
+            class="game-header"
+            [title]="getGameTooltip(game)"
+          >
+            <span class="game-teams"
+              >{{ game.awayTeam }} &#64; {{ game.homeTeam }}</span
+            >
             <br />
-            <small>{{ game.kickoffTime | date:'E, h:mm a' }}</small>
+            <small>{{
+              game.kickoffTime | date : 'E h:mm' : 'America/New_York'
+            }}</small>
           </th>
         </tr>
       </thead>

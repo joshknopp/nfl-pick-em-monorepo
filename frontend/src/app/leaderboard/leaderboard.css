@@ -25,3 +25,11 @@
 .pick-incorrect {
   background-color: #f8d7da;
 }
+
+.game-header {
+  white-space: nowrap;
+}
+
+.game-teams {
+  font-weight: bold;
+}
