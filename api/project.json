@@ -49,8 +49,10 @@
       }
     },
     "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "passWithNoTests": true
+        "jestConfig": "api/jest.config.ts"
       }
     },
     "deploy": {

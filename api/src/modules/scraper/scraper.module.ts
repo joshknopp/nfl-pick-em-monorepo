@@ -5,5 +5,6 @@ import { NflScraperService } from './scraper.service';
 @Module({
   controllers: [ScraperController],
   providers: [NflScraperService],
+  exports: [NflScraperService],
 })
 export class ScraperModule {}
