@@ -369,6 +369,13 @@ export class NflScraperService {
     }
   }
 
+  private normalizeTeamAbbreviation(abbreviation: string): string {
+    if (abbreviation && abbreviation.toUpperCase() === 'JAX') {
+      return 'JAC';
+    }
+    return abbreviation;
+  }
+
   private findConsensusResults(
     espnGames: ScrapedResult[],
     nflGames: ScrapedResult[],
@@ -378,6 +385,10 @@ export class NflScraperService {
 
     [...espnGames, ...nflGames, ...cbsGames].forEach((game) => {
       if (game) {
+        game.homeTeam = this.normalizeTeamAbbreviation(game.homeTeam);
+        game.awayTeam = this.normalizeTeamAbbreviation(game.awayTeam);
+        game.winner = this.normalizeTeamAbbreviation(game.winner);
+
         const key = this.createGameKey(game.homeTeam, game.awayTeam);
         if (!allGames.has(key)) {
           allGames.set(key, []);
