@@ -6,9 +6,10 @@ import { UserController } from './user.controller';
 import { AuthGuard } from '../shared/guards/auth.guard';
 import { PicksModule } from '../modules/picks/picks.module';
 import { LeaderboardModule } from '../modules/leaderboard/leaderboard.module';
+import { ScraperModule } from '../modules/scraper/scraper.module';
 
 @Module({
-  imports: [GamesModule, PicksModule, LeaderboardModule],
+  imports: [GamesModule, PicksModule, LeaderboardModule, ScraperModule],
   controllers: [AppController, UserController],
   providers: [AppService, AuthGuard],
 })
