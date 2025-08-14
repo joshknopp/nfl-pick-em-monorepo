@@ -31,6 +31,10 @@ import { RouterModule } from '@angular/router';
               <span class="nav-icon">🏆</span>
               Leaderboard
             </a>
+            <a routerLink="/admin" routerLinkActive="active" class="nav-link">
+              <span class="nav-icon">🛠️</span>
+              Admin
+            </a>
           </nav>
 
           <!-- User Section -->
@@ -101,6 +105,15 @@ import { RouterModule } from '@angular/router';
             >
               <span class="nav-icon">🏆</span>
               Leaderboard
+            </a>
+            <a
+              routerLink="/admin"
+              routerLinkActive="active"
+              class="mobile-nav-link"
+              (click)="closeMobileMenu()"
+            >
+              <span class="nav-icon">🛠️</span>
+              Admin
             </a>
             <div class="mobile-nav-divider"></div>
             <button class="mobile-nav-link logout-link" (click)="logout()">
