@@ -22,6 +22,8 @@ interface ScrapedResult {
   status: string;
 }
 
+type SeasonType = 'REG' | 'PRE';
+
 @Injectable()
 export class NflScraperService {
   private readonly logger = new Logger(NflScraperService.name);
@@ -62,25 +64,27 @@ export class NflScraperService {
     'WAS': ['Commanders', 'Washington Commanders', 'Washington']
   };
 
-  async getWeekResults(week: number, season: number = 2025): Promise<GameResult[]> {
-    this.logger.log(`Fetching results for Week ${week}, ${season} season`);
+  async getWeekResults(week: number, season: number = 2025, seasonType: SeasonType = 'REG'): Promise<GameResult[]> {
+    this.logger.log(`Fetching results for Week ${week}, ${season} season, type ${seasonType}`);
 
     try {
-      // Scrape from all three sources
-      const [espnResults, nflResults, cbsResults] = await Promise.allSettled([
-        this.scrapeESPN(week, season),
-        this.scrapeNFL(week, season),
-        this.scrapeCBS(week, season)
-      ]);
+      const scraperPromises = [
+        this.scrapeESPN(week, season, seasonType),
+        this.scrapeNFL(week, season, seasonType)
+      ];
 
-      // Extract successful results
+      if (seasonType === 'REG') {
+        scraperPromises.push(this.scrapeCBS(week, season, seasonType));
+      }
+
+      const [espnResults, nflResults, cbsResults] = await Promise.allSettled(scraperPromises);
+
       const espnGames = espnResults.status === 'fulfilled' ? espnResults.value : [];
       const nflGames = nflResults.status === 'fulfilled' ? nflResults.value : [];
       const cbsGames = cbsResults.status === 'fulfilled' ? cbsResults.value : [];
 
       this.logger.log(`Scraped results - ESPN: ${espnGames.length}, NFL: ${nflGames.length}, CBS: ${cbsGames.length}`);
 
-      // Combine and find consensus
       return this.findConsensusResults(espnGames, nflGames, cbsGames);
 
     } catch (error) {
@@ -89,9 +93,14 @@ export class NflScraperService {
     }
   }
 
-  private async scrapeESPN(week: number, season: number): Promise<ScrapedResult[]> {
+  async getPreseasonWeekResults(week: number, season: number = 2025): Promise<GameResult[]> {
+    return this.getWeekResults(week, season, 'PRE');
+  }
+
+  private async scrapeESPN(week: number, season: number, seasonType: SeasonType): Promise<ScrapedResult[]> {
     try {
-      const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=2&week=${week}`;
+      const espnSeasonType = seasonType === 'REG' ? 2 : 1;
+      const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=${espnSeasonType}&week=${week}`;
 
       const response = await axios.get(url, {
         timeout: 15000,
@@ -141,9 +150,9 @@ export class NflScraperService {
     }
   }
 
-  private async scrapeNFL(week: number, season: number): Promise<ScrapedResult[]> {
+  private async scrapeNFL(week: number, season: number, seasonType: SeasonType): Promise<ScrapedResult[]> {
     try {
-      const url = `https://www.nfl.com/scores/${season}/REG${week}`;
+      const url = `https://www.nfl.com/scores/${season}/${seasonType}${week}`;
 
       const response = await axios.get(url, {
         timeout: 15000,
@@ -155,7 +164,6 @@ export class NflScraperService {
       const html = response.data;
       const results: ScrapedResult[] = [];
 
-      // Try to extract JSON data from script tags
       const gameDataRegex = /window\.__INITIAL_DATA__\s*=\s*({.+?});/;
       const match = html.match(gameDataRegex);
 
@@ -202,7 +210,7 @@ export class NflScraperService {
     }
   }
 
-  private async scrapeCBS(week: number, season: number): Promise<ScrapedResult[]> {
+  private async scrapeCBS(week: number, season: number, seasonType: SeasonType): Promise<ScrapedResult[]> {
     try {
       const url = `https://www.cbssports.com/nfl/scoreboard/${season}/week${week}/`;
 
@@ -216,7 +224,6 @@ export class NflScraperService {
       const html = response.data;
       const results: ScrapedResult[] = [];
 
-      // Try to extract CBS data
       const dataRegex = /window\.INITIAL_STATE\s*=\s*({.+?});/;
       const match = html.match(dataRegex);
 
@@ -270,20 +277,20 @@ export class NflScraperService {
   ): GameResult[] {
     const allGames = new Map<string, ScrapedResult[]>();
 
-    // Group games by matchup
     [...espnGames, ...nflGames, ...cbsGames].forEach(game => {
-      const key = this.createGameKey(game.homeTeam, game.awayTeam);
-      if (!allGames.has(key)) {
-        allGames.set(key, []);
+      if (game) {
+        const key = this.createGameKey(game.homeTeam, game.awayTeam);
+        if (!allGames.has(key)) {
+          allGames.set(key, []);
+        }
+        allGames.get(key)!.push(game);
       }
-      allGames.get(key)!.push(game);
     });
 
     const consensusResults: GameResult[] = [];
 
     allGames.forEach((games, gameKey) => {
       if (games.length >= 2) {
-        // Find consensus winner
         const winnerCounts = new Map<string, number>();
         games.forEach(game => {
           winnerCounts.set(game.winner, (winnerCounts.get(game.winner) || 0) + 1);
@@ -293,7 +300,6 @@ export class NflScraperService {
           .sort(([,a], [,b]) => b - a)[0];
 
         if (consensusWinner && consensusWinner[1] >= 2) {
-          // Use the most common result
           const representativeGame = games.find(g => g.winner === consensusWinner[0])!;
 
           consensusResults.push({
@@ -321,26 +327,21 @@ export class NflScraperService {
   private matchesTeam(apiTeam: string, gameTeam: string): boolean {
     if (!apiTeam || !gameTeam) return false;
 
-    // Direct abbreviation match (most reliable)
     if (apiTeam.toUpperCase() === gameTeam.toUpperCase()) {
       return true;
     }
 
-    // Check mappings - iterate through in order (most specific first)
     const mappings = this.TEAM_MAPPINGS[gameTeam.toUpperCase()] || [];
     for (const mapping of mappings) {
-      // Exact match
       if (apiTeam.toUpperCase() === mapping.toUpperCase()) {
         return true;
       }
 
-      // Contains match (be careful with this)
       if (apiTeam.toUpperCase().includes(mapping.toUpperCase()) ||
           mapping.toUpperCase().includes(apiTeam.toUpperCase())) {
 
-        // Special handling for ambiguous cases
         if (this.isAmbiguousMatch(apiTeam, mapping, gameTeam)) {
-          continue; // Skip this match, try the next one
+          continue;
         }
 
         return true;
@@ -355,18 +356,14 @@ export class NflScraperService {
     const mappingUpper = mapping.toUpperCase();
     const gameUpper = gameTeam.toUpperCase();
 
-    // Handle LA teams specifically
     if ((gameUpper === 'LAC' || gameUpper === 'LAR') &&
         (mappingUpper === 'LOS ANGELES' || mappingUpper === 'LA')) {
-      // Only match if the API team includes the specific team name
       if (gameUpper === 'LAC' && !apiUpper.includes('CHARGER')) return true;
       if (gameUpper === 'LAR' && !apiUpper.includes('RAM')) return true;
     }
 
-    // Handle NY teams specifically
     if ((gameUpper === 'NYG' || gameUpper === 'NYJ') &&
         (mappingUpper === 'NEW YORK' || mappingUpper === 'NY')) {
-      // Only match if the API team includes the specific team name
       if (gameUpper === 'NYG' && !apiUpper.includes('GIANT')) return true;
       if (gameUpper === 'NYJ' && !apiUpper.includes('JET')) return true;
     }

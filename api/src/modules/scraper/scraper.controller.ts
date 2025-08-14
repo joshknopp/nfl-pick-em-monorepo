@@ -15,4 +15,15 @@ export class ScraperController {
       parseInt(season, 10),
     );
   }
+
+  @Get('preseason/:season/:week')
+  getPreseasonGames(
+    @Param('season') season: string,
+    @Param('week') week: string,
+  ) {
+    return this.scraperService.getPreseasonWeekResults(
+      parseInt(week, 10),
+      parseInt(season, 10),
+    );
+  }
 }
