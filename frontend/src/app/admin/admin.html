@@ -1,0 +1,21 @@
+<div class="admin-container">
+  <h2>Admin Panel</h2>
+  <p>This is the admin panel. Here you can perform administrative tasks.</p>
+  <button
+    class="btn btn-primary"
+    (click)="updateWinners()"
+    [disabled]="isUpdating"
+  >
+    <span *ngIf="!isUpdating">Update Winners</span>
+    <span *ngIf="isUpdating">
+      <span class="spinner-sm"></span>
+      Updating...
+    </span>
+  </button>
+  <div *ngIf="updatedGamesCount !== null" class="success-message">
+    Successfully updated {{ updatedGamesCount }} games.
+  </div>
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+</div>
