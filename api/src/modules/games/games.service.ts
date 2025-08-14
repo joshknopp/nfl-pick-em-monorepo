@@ -12,7 +12,7 @@ interface GameDocument extends SerializableGame {
 export class GamesService {
   constructor(
     private readonly nflScraperService: NflScraperService,
-    private readonly logger: Logger,
+    private readonly logger: Logger
   ) {}
 
   async getGames(): Promise<GameDto[]> {
@@ -70,21 +70,19 @@ export class GamesService {
 
     for (const key in gamesByWeek) {
       const [season, week] = key.split('-');
-      const results = await this.nflScraperService.getWeekResults(
-        parseInt(week),
-        parseInt(season),
+      // TODO Change to getWeekResults for regular season
+      const results = await this.nflScraperService.getPreseasonWeekResults(
+        parseInt(week) + 1, // TODO Remove +1 for regular season
+        parseInt(season)
       );
 
       for (const game of gamesByWeek[key]) {
         const result = results.find(
-          (r) =>
-            r.homeTeam === game.homeTeam && r.awayTeam === game.awayTeam,
+          (r) => r.homeTeam === game.homeTeam && r.awayTeam === game.awayTeam
         );
 
         if (result && result.winner) {
-          this.logger.log(
-            `Found winner for game ${game.id}: ${result.winner}`,
-          );
+          this.logger.log(`Found winner for game ${game.id}: ${result.winner}`);
           await admin
             .firestore()
             .collection('games')

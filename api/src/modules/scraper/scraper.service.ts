@@ -43,7 +43,7 @@ export class NflScraperService {
     GB: ['Packers', 'Green Bay Packers', 'Green Bay'],
     HOU: ['Texans', 'Houston Texans', 'Houston'],
     IND: ['Colts', 'Indianapolis Colts', 'Indianapolis'],
-    JAX: ['Jaguars', 'Jacksonville Jaguars', 'Jacksonville'],
+    JAC: ['Jaguars', 'Jacksonville Jaguars', 'Jacksonville'],
     KC: ['Chiefs', 'Kansas City Chiefs', 'Kansas City'],
     LV: ['Raiders', 'Las Vegas Raiders', 'Las Vegas'],
     LAC: ['Chargers', 'LA Chargers', 'Los Angeles Chargers', 'L.A. Chargers'],
