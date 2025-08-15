@@ -37,4 +37,20 @@ export class ApiService {
     }
     return this.http.post(url, data, { headers });
   }
+
+  put(
+    path: string,
+    data: any,
+    config?: { anonymous?: boolean }
+  ): Observable<any> {
+    const url = `${this.environmentService.getApiUrl()}/${path}`;
+    let headers = new HttpHeaders();
+    if (!config?.anonymous) {
+      const token = this.authService.getToken();
+      if (token) {
+        headers = headers.set('Authorization', `Bearer ${token}`);
+      }
+    }
+    return this.http.put(url, data, { headers });
+  }
 }

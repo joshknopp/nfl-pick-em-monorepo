@@ -3,15 +3,17 @@ import * as admin from 'firebase-admin';
 import { GameDto, PickDTO } from 'libs';
 import { GamesService } from '../games/games.service';
 import { PicksService } from '../picks/picks.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class LeaderboardService {
   constructor(
     private readonly gamesService: GamesService,
-    private readonly picksService: PicksService
+    private readonly picksService: PicksService,
+    private readonly usersService: UsersService
   ) {}
 
-  async getLeaderboard(week: number, currentUser: any) {
+  async getLeaderboard(week: number, currentUser: { id: string; email: string; displayName?: string }) {
     const users = await this.getAllUsers();
     const games = await this.gamesService.getGames();
     const weekGames = games
@@ -19,14 +21,24 @@ export class LeaderboardService {
       .sort((a, b) => a.kickoffTime.localeCompare(b.kickoffTime));
     const picks = await this.picksService.getLeaguePicks();
 
+    // Fetch usernames from Firestore for all users
+    const usernameMap: Record<string, string> = {};
+    await Promise.all(
+      users.map(async (user) => {
+        const username = await this.usersService.getUsername(user.uid);
+        if (username) usernameMap[user.uid] = username;
+      })
+    );
+
     const leaderboard = users.map((user) => {
       const userPicks = picks.filter((pick) => pick.user === user.uid);
       const { wins, losses } = this.calculateWinLoss(userPicks, games);
-
+      // Use username if available, else displayName, else email
+      const displayName = usernameMap[user.uid] || user.displayName || user.email;
       return {
         user: {
           uid: user.uid,
-          displayName: user.displayName,
+          displayName,
           email: user.email,
         },
         wins,

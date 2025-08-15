@@ -41,21 +41,23 @@ import { RouterModule } from '@angular/router';
           <div class="user-section" *ngIf="currentUser()">
             <!-- User Info -->
             <div class="user-info">
-              <div class="user-avatar">
-                <img
-                  *ngIf="currentUser()?.photoURL"
-                  [src]="currentUser()?.photoURL"
-                  [alt]="currentUser()?.displayName || 'User avatar'"
-                />
-                <div *ngIf="!currentUser()?.photoURL" class="user-initial">
-                  {{ getUserInitial() }}
+              <a class="user-avatar-link" routerLink="/settings" title="Settings">
+                <div class="user-avatar">
+                  <img
+                    *ngIf="currentUser()?.photoURL"
+                    [src]="currentUser()?.photoURL"
+                    [alt]="currentUser()?.displayName || 'User avatar'"
+                  />
+                  <div *ngIf="!currentUser()?.photoURL" class="user-initial">
+                    {{ getUserInitial() }}
+                  </div>
                 </div>
-              </div>
-              <div class="user-details">
-                <span class="user-name">{{
-                  currentUser()?.displayName || currentUser()?.email
-                }}</span>
-              </div>
+                <div class="user-details">
+                  <span class="user-name">{{
+                    currentUser()?.displayName || currentUser()?.email
+                  }}</span>
+                </div>
+              </a>
             </div>
 
             <!-- Logout Button -->
@@ -114,6 +116,14 @@ import { RouterModule } from '@angular/router';
             >
               <span class="nav-icon">🛠️</span>
               Admin
+            </a>
+            <a
+              routerLink="/settings"
+              class="mobile-nav-link"
+              (click)="closeMobileMenu()"
+            >
+              <span class="nav-icon">👤</span>
+              Settings
             </a>
             <div class="mobile-nav-divider"></div>
             <button class="mobile-nav-link logout-link" (click)="logout()">
