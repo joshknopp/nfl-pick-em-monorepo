@@ -45,8 +45,8 @@ export class UserController {
   async setUsername(@Req() req, @Body('username') username: string) {
     const uid = req.user?.uid;
     if (!uid) return { error: 'No user found' };
-    if (!username || username.length > 20) {
-      return { error: 'Username must be 1-20 characters.' };
+    if (!username || username.length < 3 || username.length > 20) {
+      return { error: 'Username must be 3-20 characters.' };
     }
     await this.userService.setUsername(uid, username);
     return { success: true };
