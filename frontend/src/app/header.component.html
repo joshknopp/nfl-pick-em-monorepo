@@ -13,11 +13,7 @@
           <span class="nav-icon">✅</span>
           Picks
         </a>
-        <a
-          routerLink="/leaderboard"
-          routerLinkActive="active"
-          class="nav-link"
-        >
+        <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">
           <span class="nav-icon">🏆</span>
           Leaderboard
         </a>
@@ -31,11 +27,7 @@
       <div class="user-section" *ngIf="currentUser()">
         <!-- User Info -->
         <div class="user-info">
-          <a
-            class="user-avatar-link"
-            routerLink="/settings"
-            title="Settings"
-          >
+          <a class="user-avatar-link" routerLink="/settings" title="Settings">
             <div class="user-avatar">
               <img
                 *ngIf="currentUser()?.photoURL"
@@ -49,9 +41,7 @@
             <div class="user-details">
               <span class="user-name">
                 {{
-                  username ||
-                    currentUser()?.displayName ||
-                    currentUser()?.email
+                  username || currentUser()?.displayName || currentUser()?.email
                 }}</span
               >
             </div>
