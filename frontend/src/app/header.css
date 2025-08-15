@@ -1,3 +1,14 @@
+/* User avatar link for settings */
+.user-avatar-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.user-avatar-link:hover .user-name {
+  text-decoration: underline;
+}
 /* Header layout */
 .site-header {
   background: linear-gradient(
@@ -143,6 +154,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 120px;
+  padding-left: 0.5em;
 }
 
 .user-status {

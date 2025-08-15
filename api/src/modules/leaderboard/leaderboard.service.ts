@@ -11,7 +11,10 @@ export class LeaderboardService {
     private readonly picksService: PicksService
   ) {}
 
-  async getLeaderboard(week: number, currentUser: any) {
+  async getLeaderboard(
+    week: number,
+    currentUser: { id: string; email: string; displayName?: string }
+  ) {
     const users = await this.getAllUsers();
     const games = await this.gamesService.getGames();
     const weekGames = games
@@ -19,14 +22,27 @@ export class LeaderboardService {
       .sort((a, b) => a.kickoffTime.localeCompare(b.kickoffTime));
     const picks = await this.picksService.getLeaguePicks();
 
+    // Fetch usernames from Firestore for all users
+    const usernameMap: Record<string, string> = {};
+    const db = admin.firestore();
+    const userDocs = await db.collection('users').get();
+    userDocs.forEach((doc) => {
+      const data = doc.data();
+      if (data?.username) {
+        usernameMap[doc.id] = data.username;
+      }
+    });
+
     const leaderboard = users.map((user) => {
       const userPicks = picks.filter((pick) => pick.user === user.uid);
       const { wins, losses } = this.calculateWinLoss(userPicks, games);
-
+      // Use username if available, else displayName, else email
+      const displayName =
+        usernameMap[user.uid] || user.displayName || user.email;
       return {
         user: {
           uid: user.uid,
-          displayName: user.displayName,
+          displayName,
           email: user.email,
         },
         wins,

@@ -50,7 +50,7 @@
       "label": "Angular App",
       "onAutoForward": "notify"
     },
-    "3000": {
+    "8080": {
       "label": "NestJS API",
       "onAutoForward": "notify"
     }
