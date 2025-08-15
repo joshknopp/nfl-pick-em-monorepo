@@ -38,9 +38,7 @@ export class SettingsComponent implements OnInit {
       return;
     }
     try {
-      const res = await firstValueFrom(
-        this.apiService.get(`users/${user.uid}/username`)
-      );
+      const res = await firstValueFrom(this.apiService.get('user/username'));
       this.username = res?.username || '';
     } catch {
       this.error = 'Failed to load username.';
@@ -64,7 +62,7 @@ export class SettingsComponent implements OnInit {
     }
     try {
       await firstValueFrom(
-        this.apiService.put(`users/${user.uid}/username`, {
+        this.apiService.put('user/username', {
           username: this.username,
         })
       );

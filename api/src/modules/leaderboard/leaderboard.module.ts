@@ -3,10 +3,9 @@ import { LeaderboardController } from './leaderboard.controller';
 import { LeaderboardService } from './leaderboard.service';
 import { GamesModule } from '../games/games.module';
 import { PicksModule } from '../picks/picks.module';
-import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [GamesModule, PicksModule, UsersModule],
+  imports: [GamesModule, PicksModule],
   controllers: [LeaderboardController],
   providers: [LeaderboardService],
 })

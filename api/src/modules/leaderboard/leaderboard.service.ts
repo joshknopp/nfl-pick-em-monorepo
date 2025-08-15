@@ -3,14 +3,12 @@ import * as admin from 'firebase-admin';
 import { GameDto, PickDTO } from 'libs';
 import { GamesService } from '../games/games.service';
 import { PicksService } from '../picks/picks.service';
-import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class LeaderboardService {
   constructor(
     private readonly gamesService: GamesService,
-    private readonly picksService: PicksService,
-    private readonly usersService: UsersService
+    private readonly picksService: PicksService
   ) {}
 
   async getLeaderboard(
@@ -26,12 +24,14 @@ export class LeaderboardService {
 
     // Fetch usernames from Firestore for all users
     const usernameMap: Record<string, string> = {};
-    await Promise.all(
-      users.map(async (user) => {
-        const username = await this.usersService.getUsername(user.uid);
-        if (username) usernameMap[user.uid] = username;
-      })
-    );
+    const db = admin.firestore();
+    const userDocs = await db.collection('users').get();
+    userDocs.forEach((doc) => {
+      const data = doc.data();
+      if (data?.username) {
+        usernameMap[doc.id] = data.username;
+      }
+    });
 
     const leaderboard = users.map((user) => {
       const userPicks = picks.filter((pick) => pick.user === user.uid);
