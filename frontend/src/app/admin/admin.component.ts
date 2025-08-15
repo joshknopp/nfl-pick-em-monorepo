@@ -15,21 +15,23 @@ export class AdminComponent {
   updatedGamesCount: number | null = null;
   error: string | null = null;
 
-  async updateWinners(): Promise<void> {
+  updateWinners(): void {
     if (this.isUpdating) return;
 
     this.isUpdating = true;
     this.updatedGamesCount = null;
     this.error = null;
 
-    try {
-      const result = await this.apiService.post<any[]>('/games/check-ended');
-      this.updatedGamesCount = result.length;
-    } catch (error: any) {
-      this.error = 'Failed to update winners: ' + (error.message || 'Unknown error');
-      console.error('Failed to update winners', error);
-    } finally {
-      this.isUpdating = false;
-    }
+    this.apiService.post('/games/check-ended', {}).subscribe({
+      next: (result: any[]) => {
+        this.updatedGamesCount = result.length;
+        this.isUpdating = false;
+      },
+      error: (error: any) => {
+        this.error = 'Failed to update winners: ' + (error.message || 'Unknown error');
+        console.error('Failed to update winners', error);
+        this.isUpdating = false;
+      },
+    });
   }
 }
