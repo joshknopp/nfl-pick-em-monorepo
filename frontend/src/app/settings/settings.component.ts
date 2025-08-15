@@ -1,4 +1,3 @@
-
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../api.service';
@@ -38,7 +37,9 @@ export class SettingsComponent implements OnInit {
       return;
     }
     try {
-      const res = await firstValueFrom(this.apiService.get(`users/${user.uid}/username`));
+      const res = await firstValueFrom(
+        this.apiService.get(`users/${user.uid}/username`)
+      );
       this.username = res?.username || '';
     } catch {
       this.error = 'Failed to load username.';
@@ -61,7 +62,11 @@ export class SettingsComponent implements OnInit {
       return;
     }
     try {
-      await firstValueFrom(this.apiService.put(`users/${user.uid}/username`, { username: this.username }));
+      await firstValueFrom(
+        this.apiService.put(`users/${user.uid}/username`, {
+          username: this.username,
+        })
+      );
       this.success = 'Username updated!';
     } catch {
       this.error = 'Failed to save username.';

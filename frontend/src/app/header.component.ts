@@ -41,7 +41,11 @@ import { RouterModule } from '@angular/router';
           <div class="user-section" *ngIf="currentUser()">
             <!-- User Info -->
             <div class="user-info">
-              <a class="user-avatar-link" routerLink="/settings" title="Settings">
+              <a
+                class="user-avatar-link"
+                routerLink="/settings"
+                title="Settings"
+              >
                 <div class="user-avatar">
                   <img
                     *ngIf="currentUser()?.photoURL"

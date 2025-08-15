@@ -13,7 +13,10 @@ export class LeaderboardService {
     private readonly usersService: UsersService
   ) {}
 
-  async getLeaderboard(week: number, currentUser: { id: string; email: string; displayName?: string }) {
+  async getLeaderboard(
+    week: number,
+    currentUser: { id: string; email: string; displayName?: string }
+  ) {
     const users = await this.getAllUsers();
     const games = await this.gamesService.getGames();
     const weekGames = games
@@ -34,7 +37,8 @@ export class LeaderboardService {
       const userPicks = picks.filter((pick) => pick.user === user.uid);
       const { wins, losses } = this.calculateWinLoss(userPicks, games);
       // Use username if available, else displayName, else email
-      const displayName = usernameMap[user.uid] || user.displayName || user.email;
+      const displayName =
+        usernameMap[user.uid] || user.displayName || user.email;
       return {
         user: {
           uid: user.uid,
