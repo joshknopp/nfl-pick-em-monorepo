@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from './auth.service';
+import { ApiService } from './api.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -57,9 +59,13 @@ import { RouterModule } from '@angular/router';
                   </div>
                 </div>
                 <div class="user-details">
-                  <span class="user-name">{{
-                    currentUser()?.displayName || currentUser()?.email
-                  }}</span>
+                  <span class="user-name">
+                    {{
+                      username ||
+                        currentUser()?.displayName ||
+                        currentUser()?.email
+                    }}</span
+                  >
                 </div>
               </a>
             </div>
@@ -141,14 +147,40 @@ import { RouterModule } from '@angular/router';
   `,
   styleUrls: ['./header.css'],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
+  private apiService = inject(ApiService);
   currentUser = () => this.authService.user;
   isLoggingOut = false;
   isMobileMenuOpen = false;
+  username = '';
+
+  ngOnInit() {
+    firstValueFrom(this.authService.authReady$).then(() => {
+      this.loadUsername();
+    });
+  }
+
+  async loadUsername() {
+    const currentUser = this.currentUser();
+    if (!currentUser) {
+      this.username = '';
+      return;
+    }
+    try {
+      const res = await firstValueFrom(this.apiService.get('user/username'));
+      this.username =
+        res?.username || currentUser.displayName || currentUser.email || '';
+    } catch {
+      this.username = '';
+    }
+  }
 
   getUserInitial(): string {
     const user = this.currentUser();
+    if (this.username) {
+      return this.username.charAt(0).toUpperCase();
+    }
     if (user?.displayName) {
       return user.displayName.charAt(0).toUpperCase();
     }

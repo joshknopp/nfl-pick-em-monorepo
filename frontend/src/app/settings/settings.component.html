@@ -2,16 +2,16 @@
   <h2>Settings</h2>
   <div *ngIf="loading">Loading...</div>
   <div *ngIf="!loading">
-    <label for="username">Screen Name</label>
+    <label for="displayName">Display Name</label>
     <input
-      id="username"
+      id="displayName"
       type="text"
-      [(ngModel)]="username"
+      [(ngModel)]="displayName"
       maxlength="{{ maxLen }}"
       [disabled]="saving"
-      placeholder="Enter your screen name"
+      placeholder="Enter your display name"
     />
-    <button (click)="saveUsername()" [disabled]="saving">Save</button>
+    <button (click)="saveDisplayName()" [disabled]="saving">Save</button>
     <div class="error" *ngIf="error">{{ error }}</div>
     <div class="success" *ngIf="success">{{ success }}</div>
   </div>

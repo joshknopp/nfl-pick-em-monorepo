@@ -154,6 +154,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 120px;
+  padding-left: 0.5em;
 }
 
 .user-status {

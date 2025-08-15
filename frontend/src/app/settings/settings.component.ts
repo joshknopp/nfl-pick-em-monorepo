@@ -13,7 +13,7 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./settings.component.css'],
 })
 export class SettingsComponent implements OnInit {
-  username = '';
+  displayName = '';
   loading = true;
   saving = false;
   error = '';
@@ -24,10 +24,10 @@ export class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
 
   ngOnInit() {
-    this.loadUsername();
+    this.loadDisplayName();
   }
 
-  async loadUsername() {
+  async loadDisplayName() {
     this.loading = true;
     this.error = '';
     this.success = '';
@@ -39,16 +39,20 @@ export class SettingsComponent implements OnInit {
     }
     try {
       const res = await firstValueFrom(this.apiService.get('user/username'));
-      this.username = res?.username || '';
+      if (res?.username) {
+        this.displayName = res.username;
+      } else {
+        this.displayName = user.displayName || user.email || '';
+      }
     } catch {
-      this.error = 'Failed to load username.';
+      this.error = 'Failed to load displayName.';
     }
     this.loading = false;
   }
 
-  async saveUsername() {
-    if (!this.username || this.username.length > this.maxLen) {
-      this.error = `Username must be 1-${this.maxLen} characters.`;
+  async saveDisplayName() {
+    if (!this.displayName || this.displayName.length > this.maxLen) {
+      this.error = `Display Name must be 1-${this.maxLen} characters.`;
       return;
     }
     this.saving = true;
@@ -63,12 +67,12 @@ export class SettingsComponent implements OnInit {
     try {
       await firstValueFrom(
         this.apiService.put('user/username', {
-          username: this.username,
+          username: this.displayName,
         })
       );
-      this.success = 'Username updated!';
+      this.success = 'Display name updated!';
     } catch {
-      this.error = 'Failed to save username.';
+      this.error = 'Failed to save disply name.';
     }
     this.saving = false;
   }

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { App } from './app';
 import { NxWelcome } from './nx-welcome';
@@ -7,11 +8,7 @@ import { NxWelcome } from './nx-welcome';
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        RouterModule.forRoot([]), // Add this line
-        App,
-        NxWelcome,
-      ],
+      imports: [RouterModule.forRoot([]), HttpClientModule, App, NxWelcome],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
   });
