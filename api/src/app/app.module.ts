@@ -7,9 +7,16 @@ import { AuthGuard } from '../shared/guards/auth.guard';
 import { PicksModule } from '../modules/picks/picks.module';
 import { LeaderboardModule } from '../modules/leaderboard/leaderboard.module';
 import { ScraperModule } from '../modules/scraper/scraper.module';
+import { UsersModule } from '../modules/users/users.module';
 
 @Module({
-  imports: [GamesModule, PicksModule, LeaderboardModule, ScraperModule],
+  imports: [
+    GamesModule,
+    PicksModule,
+    LeaderboardModule,
+    ScraperModule,
+    UsersModule,
+  ],
   controllers: [AppController, UserController],
   providers: [AppService, AuthGuard],
 })
