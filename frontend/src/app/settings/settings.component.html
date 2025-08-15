@@ -7,9 +7,11 @@
       id="displayName"
       type="text"
       [(ngModel)]="displayName"
-      maxlength="{{ maxLen }}"
+      minlength="{{ minLength }}"
+      maxlength="{{ maxLength }}"
       [disabled]="saving"
       placeholder="Enter your display name"
+      (keydown.enter)="saveDisplayName()"
     />
     <button (click)="saveDisplayName()" [disabled]="saving">Save</button>
     <div class="error" *ngIf="error">{{ error }}</div>

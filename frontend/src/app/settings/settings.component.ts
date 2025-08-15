@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { AuthService } from '../auth.service';
+import { UserService } from '../user.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -18,10 +19,12 @@ export class SettingsComponent implements OnInit {
   saving = false;
   error = '';
   success = '';
-  maxLen = 20;
+  minLength = 3;
+  maxLength = 20;
 
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
 
   ngOnInit() {
     this.loadDisplayName();
@@ -51,8 +54,12 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveDisplayName() {
-    if (!this.displayName || this.displayName.length > this.maxLen) {
-      this.error = `Display Name must be 1-${this.maxLen} characters.`;
+    if (
+      !this.displayName ||
+      this.displayName.length < this.minLength ||
+      this.displayName.length > this.maxLength
+    ) {
+      this.error = `Display Name must be ${this.minLength}-${this.maxLength} characters.`;
       return;
     }
     this.saving = true;
@@ -71,6 +78,7 @@ export class SettingsComponent implements OnInit {
         })
       );
       this.success = 'Display name updated!';
+      this.userService.setDisplayName(this.displayName);
     } catch {
       this.error = 'Failed to save disply name.';
     }

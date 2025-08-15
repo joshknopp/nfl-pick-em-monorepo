@@ -1,9 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
+import { UserService } from './user.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -12,18 +13,33 @@ import { firstValueFrom } from 'rxjs';
   templateUrl: './header.component.html',
   styleUrls: ['./header.css'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private apiService = inject(ApiService);
+  private userService = inject(UserService);
   currentUser = () => this.authService.user;
   isLoggingOut = false;
   isMobileMenuOpen = false;
   username = '';
+  private displayNameSub?: Subscription;
+  private authSub?: Subscription;
 
   ngOnInit() {
     firstValueFrom(this.authService.authReady$).then(() => {
       this.loadUsername();
+      this.displayNameSub = this.userService.displayName$.subscribe((name) => {
+        if (name) {
+          this.username = name;
+        }
+      });
+      this.authSub = this.authService.isAuthenticated$.subscribe(() => {
+        this.loadUsername();
+      });
     });
+  }
+  ngOnDestroy() {
+    this.displayNameSub?.unsubscribe();
+    this.authSub?.unsubscribe();
   }
 
   async loadUsername() {
