@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
 import { WeekSelectorComponent } from './week-selector/week-selector.component';
@@ -34,9 +34,14 @@ export class GamesComponent implements OnInit, OnDestroy {
   private apiService = inject(ApiService);
   private picksService = inject(PicksService);
   private toastService = inject(ToastService);
+  private document = inject(DOCUMENT);
 
   ngOnInit() {
     this.loadGamesAndPicks();
+    this.document.addEventListener(
+      'visibilitychange',
+      this.onVisibilityChange
+    );
   }
 
   getGameId(dto: GameDto) {
@@ -107,6 +112,15 @@ export class GamesComponent implements OnInit, OnDestroy {
     this.games = games;
     this.setWeekBounds();
     this.selectedWeek = this.getInitialWeek();
+    this.resetAndSetKickoffTimers();
+  }
+
+  private resetAndSetKickoffTimers() {
+    // Clear any existing timers
+    this.kickoffTimers.forEach((timer) => clearTimeout(timer));
+    this.kickoffTimers.clear();
+
+    // Set new timers for games that haven't kicked off
     this.games.forEach((game) => {
       const kickoffTime = new Date(game.kickoffTime).getTime();
       const now = new Date().getTime();
@@ -152,9 +166,19 @@ export class GamesComponent implements OnInit, OnDestroy {
     return serializeGame(game);
   };
 
+  private onVisibilityChange = (): void => {
+    if (this.document.visibilityState === 'visible') {
+      this.resetAndSetKickoffTimers();
+    }
+  };
+
   ngOnDestroy(): void {
     // Clear all timers when the component is destroyed to prevent memory leaks
     this.kickoffTimers.forEach((timer) => clearTimeout(timer));
+    this.document.removeEventListener(
+      'visibilitychange',
+      this.onVisibilityChange
+    );
   }
 
   isGameLocked(game: Game): boolean {
