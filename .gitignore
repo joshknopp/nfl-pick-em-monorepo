@@ -148,3 +148,4 @@ vite.config.ts.timestamp-*
 .angular
 
 **/serviceAccountKey.json
+**/firebase-credentials.json

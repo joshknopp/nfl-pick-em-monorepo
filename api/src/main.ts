@@ -2,9 +2,23 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app/app.module';
+import * as admin from 'firebase-admin';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Initialize Firebase Admin SDK
+const serviceAccount = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, './assets/firebase-credentials.json'),
+    'utf8'
+  )
+);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+console.log('Firebase initialized in main.ts');
 
 dotenv.config();
-
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
