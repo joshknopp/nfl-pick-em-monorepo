@@ -9,7 +9,7 @@ import * as path from 'path';
 // Initialize Firebase Admin SDK
 const serviceAccount = JSON.parse(
   fs.readFileSync(
-    path.join(__dirname, './assets/firebase-credentials.json'),
+    path.join(__dirname, './assets/serviceAccountKey.json'),
     'utf8'
   )
 );
