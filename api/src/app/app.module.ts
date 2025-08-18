@@ -8,9 +8,16 @@ import { PicksModule } from '../modules/picks/picks.module';
 import { LeaderboardModule } from '../modules/leaderboard/leaderboard.module';
 import { ScraperModule } from '../modules/scraper/scraper.module';
 import { UserService } from './user.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [GamesModule, PicksModule, LeaderboardModule, ScraperModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    GamesModule,
+    PicksModule,
+    LeaderboardModule,
+    ScraperModule,
+  ],
   controllers: [AppController, UserController],
   providers: [AppService, AuthGuard, UserService],
 })
