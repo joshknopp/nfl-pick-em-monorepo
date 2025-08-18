@@ -12,8 +12,12 @@ export class GamesSchedulerService {
   async handleGamesEnded() {
     this.logger.log('Starting scheduled job: checking for ended games');
     try {
-      await this.gamesService.checkForEndedGames();
-      this.logger.log('Scheduled job finished successfully.');
+      const updatedGames = await this.gamesService.checkForEndedGames();
+      this.logger.log(
+        `Scheduled job finished successfully. Updated games: ${JSON.stringify(
+          updatedGames
+        )}`
+      );
     } catch (error) {
       this.logger.error('Scheduled job failed:', error.message);
     }
