@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths:
       - 'frontend/**'
       - 'dist/frontend/**'
@@ -32,8 +33,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          # Use the new secret containing the JSON key
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}'
-          projectId: ${{ secrets.GCP_PROJECT_ID }}
+          firebaseServiceAccount: ${{ github.ref == 'refs/heads/main' && secrets.FIREBASE_SERVICE_ACCOUNT_KEY_PROD || secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          projectId: ${{ github.ref == 'refs/heads/main' && 'nfl-pick-em-prod' || secrets.GCP_PROJECT_ID }}
           channelId: live
           entryPoint: ./
