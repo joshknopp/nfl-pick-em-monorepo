@@ -27,7 +27,12 @@ jobs:
         run: npm install
 
       - name: Build Angular app
-        run: npx nx build frontend --prod
+        run: |
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            npx nx build frontend --configuration=production
+          else
+            npx nx build frontend --configuration=development
+          fi
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
