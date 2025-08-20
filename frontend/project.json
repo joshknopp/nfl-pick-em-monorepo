@@ -50,7 +50,7 @@
           "sourceMap": true
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "production"
     },
     "serve": {
       "continuous": true,
