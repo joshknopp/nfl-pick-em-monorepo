@@ -42,15 +42,31 @@ jobs:
         run: |
           docker build -t ${{ github.ref == 'refs/heads/main' && 'us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest' || 'us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest' }} .
 
+      - name: Prepare environment variables for Cloud Run (prod only)
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          export ENV_VARS=$(grep -v '^#' api/.env.prod | xargs | sed 's/ /,/g')
+          echo "ENV_VARS=$ENV_VARS" >> $GITHUB_ENV
+
       - name: Push Docker image to Artifact Registry
         run: |
           docker push ${{ github.ref == 'refs/heads/main' && 'us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest' || 'us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest' }}
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy nfl-pick-em-api \
-            --image=${{ github.ref == 'refs/heads/main' && 'us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest' || 'us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest' }} \
-            --platform=managed \
-            --region=us-east1 \
-            --allow-unauthenticated \
-            --port=8080
+            if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+              gcloud run deploy nfl-pick-em-api \
+                --image=us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest \
+                --platform=managed \
+                --region=us-east1 \
+                --allow-unauthenticated \
+                --port=8080 \
+                --set-env-vars="$ENV_VARS"
+            else
+              gcloud run deploy nfl-pick-em-api \
+                --image=us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest \
+                --platform=managed \
+                --region=us-east1 \
+                --allow-unauthenticated \
+                --port=8080
+            fi
