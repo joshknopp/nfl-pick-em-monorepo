@@ -38,14 +38,6 @@ jobs:
         run: |
           gcloud auth configure-docker us-east1-docker.pkg.dev --quiet
 
-      - name: Build frontend
-        run: |
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            nx build frontend --configuration=production
-          else
-            nx build frontend --configuration=development
-          fi
-
       - name: Build Docker image
         run: |
           docker build -t ${{ github.ref == 'refs/heads/main' && 'us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest' || 'us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest' }} .
@@ -62,19 +54,19 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            gcloud run deploy nfl-pick-em-api \
-              --image=us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest \
-              --platform=managed \
-              --region=us-east1 \
-              --allow-unauthenticated \
-              --port=8080 \
-              --set-env-vars="$ENV_VARS"
-          else
-            gcloud run deploy nfl-pick-em-api \
-              --image=us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest \
-              --platform=managed \
-              --region=us-east1 \
-              --allow-unauthenticated \
-              --port=8080
-          fi
+            if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+              gcloud run deploy nfl-pick-em-api \
+                --image=us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest \
+                --platform=managed \
+                --region=us-east1 \
+                --allow-unauthenticated \
+                --port=8080 \
+                --set-env-vars="$ENV_VARS"
+            else
+              gcloud run deploy nfl-pick-em-api \
+                --image=us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest \
+                --platform=managed \
+                --region=us-east1 \
+                --allow-unauthenticated \
+                --port=8080
+            fi
