@@ -2,7 +2,7 @@ export const environment = {
   // TODO set this in firebase hosting environment
   apiUrl: 'https://nfl-pick-em-api-826860165734.us-east1.run.app',
   //apiUrl: 'https://silver-giggle-697vx46r5pxx25rw-8080.app.github.dev',
-
+  environmentName: 'development',
   firebaseConfig: {
     apiKey: 'AIzaSyAVOlaBZbUdsWdeL0wmO3-vbNC2xvcXlE4',
     authDomain: 'nfl-pick--em-dev.firebaseapp.com',
