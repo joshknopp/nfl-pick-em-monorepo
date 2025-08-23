@@ -19,4 +19,8 @@ export class EnvironmentService {
     }
     return environment.apiUrl;
   }
+
+  getEnvironmentName(): string {
+    return (environment as any).environmentName;
+  }
 }
