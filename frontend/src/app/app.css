@@ -28,7 +28,7 @@
 .dev-banner {
   position: fixed;
   top: 40px;
-  right: -40px;
+  right: -50px;
   width: 200px;
   text-align: center;
   transform: rotate(45deg);
