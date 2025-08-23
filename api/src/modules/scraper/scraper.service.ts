@@ -372,6 +372,8 @@ export class NflScraperService {
   private normalizeTeamAbbreviation(abbreviation: string): string {
     if (abbreviation && abbreviation.toUpperCase() === 'JAX') {
       return 'JAC';
+    } else if (abbreviation && abbreviation.toUpperCase() === 'WSH') {
+      return 'WAS';
     }
     return abbreviation;
   }
