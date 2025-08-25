@@ -70,9 +70,8 @@ export class GamesService {
 
     for (const key in gamesByWeek) {
       const [season, week] = key.split('-');
-      // TODO Change to getWeekResults for regular season
-      const results = await this.nflScraperService.getPreseasonWeekResults(
-        parseInt(week) + 1, // TODO Remove +1 for regular season
+      const results = await this.nflScraperService.getWeekResults(
+        parseInt(week),
         parseInt(season)
       );
 
