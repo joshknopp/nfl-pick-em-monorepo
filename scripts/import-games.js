@@ -22,8 +22,8 @@ const collectionName = 'games';
 const gamesCollection = db.collection(collectionName);
 
 // --- 3. File Path for the CSV Data ---
-// Ensure that 'preseason.csv' is in the same directory as this script.
-const csvFilePath = path.join(__dirname, 'preseason.csv');
+// Ensure that 'csv is in the same directory as this script.
+const csvFilePath = path.join(__dirname, '2025-regular-season.csv');
 
 // --- 4. Main Import Logic ---
 async function importGames() {
