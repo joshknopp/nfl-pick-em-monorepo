@@ -8,7 +8,7 @@ export class GamesSchedulerService {
 
   constructor(private readonly gamesService: GamesService) {}
 
-  @Cron('*/5 * * * *')
+  @Cron('*/1 * * * *')
   async handleGamesEnded() {
     this.logger.log('Starting scheduled job: checking for ended games');
     try {
