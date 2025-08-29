@@ -32,6 +32,11 @@
 }
 
 /* Brand section */
+.brand-link {
+  text-decoration: none;
+  color: white;
+}
+
 .brand {
   display: flex;
   align-items: center;
