@@ -31,7 +31,7 @@ jobs:
           if [ "$GITHUB_REF" = "refs/heads/main" ]; then
             npx nx build frontend --configuration=production
           else
-            npx nx build frontend --configuration=development
+            npx nx build frontend --configuration=staging
           fi
 
       - name: Deploy to Firebase Hosting
