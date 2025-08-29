@@ -5,6 +5,7 @@ import { LoginComponent } from './login';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { AdminComponent } from './admin/admin.component';
 import { SettingsComponent } from './settings/settings.component';
+import { RulesComponent } from './rules/rules.component';
 
 export const appRoutes: Routes = [
   { path: '', redirectTo: 'games', pathMatch: 'full' },
@@ -27,6 +28,10 @@ export const appRoutes: Routes = [
     path: 'settings',
     canActivate: [AuthGuard],
     component: SettingsComponent,
+  },
+  {
+    path: 'rules',
+    component: RulesComponent,
   },
   {
     path: 'login',
