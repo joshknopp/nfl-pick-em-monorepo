@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
+  imports: [RouterModule],
   template: `
     <footer class="site-footer">
       <div class="container">
@@ -25,8 +27,7 @@ import { Component } from '@angular/core';
             <div class="link-group"></div>
 
             <div class="link-group">
-              <h4 class="link-title">Game</h4>
-              <a href="#" class="footer-link">Rules</a>
+              <a routerLink="/rules" class="footer-link">Rules</a>
             </div>
           </div>
         </div>
