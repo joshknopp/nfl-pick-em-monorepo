@@ -24,5 +24,5 @@ import { CommonModule } from '@angular/common';
 export class App {
   protected title = 'frontend';
   private environmentService = inject(EnvironmentService);
-  isDevelopment = this.environmentService.getEnvironmentName() === 'development';
+  isDevelopment = this.environmentService.getEnvironmentName() !== 'production';
 }
