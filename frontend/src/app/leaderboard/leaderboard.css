@@ -1,6 +1,6 @@
 .table-responsive {
   max-height: 80vh;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 .table thead th {
