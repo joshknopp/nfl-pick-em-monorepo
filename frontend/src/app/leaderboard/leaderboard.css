@@ -1,6 +1,6 @@
 .table-responsive {
   max-height: 80vh;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 .table thead th {
@@ -39,6 +39,10 @@
   left: 0;
   z-index: 2;
   background-color: #fff;
+}
+
+th.sticky-column {
+  z-index: 20;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) > .sticky-column {
