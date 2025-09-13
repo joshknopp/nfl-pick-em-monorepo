@@ -10,6 +10,12 @@
   z-index: 1;
 }
 
+/* This ensures the top-left header cell is sticky in both directions and has the correct background and stacking order. */
+.table thead th.sticky-column {
+  background-color: #f8f9fa;
+  z-index: 3;
+}
+
 .current-user {
   background-color: #f1f1d1;
 }
@@ -32,4 +38,23 @@
 
 .game-teams {
   font-weight: bold;
+}
+
+.sticky-column {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: #fff;
+}
+
+th.sticky-column {
+  z-index: 20;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > .sticky-column {
+  background-color: #f9f9f9;
+}
+
+.current-user .sticky-column {
+  background-color: #f1f1d1;
 }
