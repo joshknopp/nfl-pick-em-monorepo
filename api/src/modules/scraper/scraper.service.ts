@@ -43,7 +43,7 @@ export class NflScraperService {
     GB: ['Packers', 'Green Bay Packers', 'Green Bay'],
     HOU: ['Texans', 'Houston Texans', 'Houston'],
     IND: ['Colts', 'Indianapolis Colts', 'Indianapolis'],
-    JAC: ['Jaguars', 'Jacksonville Jaguars', 'Jacksonville', 'JAX'],
+    JAX: ['Jaguars', 'Jacksonville Jaguars', 'Jacksonville', 'JAC'],
     KC: ['Chiefs', 'Kansas City Chiefs', 'Kansas City'],
     LV: ['Raiders', 'Las Vegas Raiders', 'Las Vegas'],
     LAC: ['Chargers', 'LA Chargers', 'Los Angeles Chargers', 'L.A. Chargers'],
@@ -370,8 +370,8 @@ export class NflScraperService {
   }
 
   private normalizeTeamAbbreviation(abbreviation: string): string {
-    if (abbreviation && abbreviation.toUpperCase() === 'JAX') {
-      return 'JAC';
+    if (abbreviation && abbreviation.toUpperCase() === 'JAC') {
+      return 'JAX';
     } else if (abbreviation && abbreviation.toUpperCase() === 'WSH') {
       return 'WAS';
     }
