@@ -6,6 +6,34 @@ This project is a full-stack NFL Pick 'Em application, managed as an Nx monorepo
 - **NestJS** backend API
 - Managed with [Nx](https://nx.dev/) for powerful monorepo tooling
 
+## Application Architecture
+
+```mermaid
+sequenceDiagram
+    participant User/Browser
+    participant Frontend (Angular)
+    participant API (NestJS)
+    participant Firebase Auth
+    participant Firestore DB
+
+    %% User Authentication Flow %%
+    User/Browser->>Frontend (Angular): Enters login credentials
+    Frontend (Angular)->>Firebase Auth: Sends credentials for verification
+    Firebase Auth-->>Frontend (Angular): Returns ID Token (JWT)
+    Frontend (Angular)->>Frontend (Angular): Stores ID Token
+
+    %% Authenticated Data Request Flow (e.g., Get Games) %%
+    User/Browser->>Frontend (Angular): Navigates to a protected route (e.g., /games)
+    Frontend (Angular)->>API (NestJS): GET /api/games with ID Token in Header
+    API (NestJS)->>Firebase Auth: Verifies ID Token
+    Firebase Auth-->>API (NestJS): Token is valid
+    API (NestJS)->>Firestore DB: Queries for games data
+    Firestore DB-->>API (NestJS): Returns games data
+    API (NestJS)-->>Frontend (Angular): Returns games data as JSON
+    Frontend (Angular)-->>User/Browser: Renders the games list
+
+```
+
 ## Getting Started
 
 ### TL;DR
