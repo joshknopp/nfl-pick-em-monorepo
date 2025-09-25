@@ -19,7 +19,7 @@
           <span class="nav-icon">🏆</span>
           Leaderboard
         </a>
-        <a routerLink="/admin" routerLinkActive="active" class="nav-link">
+        <a routerLink="/admin" routerLinkActive="active" class="nav-link" *ngIf="false">
           <span class="nav-icon">🛠️</span>
           Admin
         </a>
@@ -107,6 +107,7 @@
           routerLinkActive="active"
           class="mobile-nav-link"
           (click)="closeMobileMenu()"
+          *ngIf="false"
         >
           <span class="nav-icon">🛠️</span>
           Admin
