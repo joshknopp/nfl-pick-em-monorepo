@@ -7,11 +7,12 @@
  * NOTE: This script is designed to be run in a Node.js environment using the
  * Firebase Admin SDK.
  *
- * BEFORE RUNNING:
+ * INSTRUCTIONS:
  * 1. Install the Firebase Admin SDK: npm install firebase-admin
- * 2. Set up your service account credentials (e.g., set the
- * GOOGLE_APPLICATION_CREDENTIALS environment variable).
- * 3. Update the COLLECTION_NAME constant below.
+ * 2. Set up your service account credentials (e.g., create json file cired in SERVICE_ACCOUNT constant).
+ * 3. Confirm the COLLECTION_NAME constant.
+ * 4. Confirm START_DATE_STRING constant.
+ * 5. Run `node dst-hour-add.js`
  */
 
 // Import the Admin SDK
