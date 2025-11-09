@@ -7,11 +7,12 @@
  * NOTE: This script is designed to be run in a Node.js environment using the
  * Firebase Admin SDK.
  *
- * BEFORE RUNNING:
+ * INSTRUCTIONS:
  * 1. Install the Firebase Admin SDK: npm install firebase-admin
- * 2. Set up your service account credentials (e.g., set the
- * GOOGLE_APPLICATION_CREDENTIALS environment variable).
- * 3. Update the COLLECTION_NAME constant below.
+ * 2. Set up your service account credentials (e.g., create json file cired in SERVICE_ACCOUNT constant).
+ * 3. Confirm the COLLECTION_NAME constant.
+ * 4. Confirm START_DATE_STRING constant.
+ * 5. Run `node dst-hour-add.js`
  */
 
 // Import the Admin SDK
@@ -26,14 +27,14 @@ const SERVICE_ACCOUNT = require('./nfl-dev-service-account.json');
 
 // Define the start date for the migration query.
 // Documents with kickoffTime on or after this date will be considered.
-const START_DATE_STRING = '2025-11-08T00:00:00.000Z';
+const START_DATE_STRING = '2025-11-01T00:00:00.000Z';
 const START_TIMESTAMP = admin.firestore.Timestamp.fromDate(
   new Date(START_DATE_STRING)
 );
 
 // Idempotency Field: A unique field used to mark successfully migrated documents.
 // If you run this script again, documents with this field set to true will be skipped.
-const IDEMPOTENCY_FIELD = 'migration_v1_subtract_hour';
+const IDEMPOTENCY_FIELD = 'migration_v1_add_hour';
 
 // Initialize the Firebase Admin SDK
 try {
@@ -108,8 +109,8 @@ async function runMigration() {
       // Convert Firestore Timestamp to JavaScript Date
       const originalDate = originalKickoffTime.toDate();
 
-      // Calculate the new kickoff time by subtracting 1 hour (3600000 milliseconds)
-      const newDate = new Date(originalDate.getTime() - 60 * 60 * 1000);
+      // Calculate the new kickoff time by adding 1 hour (3600000 milliseconds)
+      const newDate = new Date(originalDate.getTime() + 60 * 60 * 1000);
 
       // Convert the new Date back to a Firestore Timestamp
       const newKickoffTime = admin.firestore.Timestamp.fromDate(newDate);
