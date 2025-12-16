@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { GamesModule } from '../modules/games/games.module';
 import { UserController } from './user.controller';
 import { AuthGuard } from '../shared/guards/auth.guard';
+import { AdminGuard } from '../shared/guards/admin.guard';
 import { PicksModule } from '../modules/picks/picks.module';
 import { LeaderboardModule } from '../modules/leaderboard/leaderboard.module';
 import { ScraperModule } from '../modules/scraper/scraper.module';
@@ -19,6 +20,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScraperModule,
   ],
   controllers: [AppController, UserController],
-  providers: [AppService, AuthGuard, UserService],
+  providers: [AppService, AuthGuard, AdminGuard, UserService],
 })
 export class AppModule {}

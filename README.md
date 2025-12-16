@@ -105,3 +105,9 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 ## License
 
 This project is licensed under the MIT License.
+
+## Environment Variables
+
+### API
+
+- `ADMIN_EMAILS`: A comma-separated list of email addresses that have admin privileges.

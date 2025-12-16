@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { GameDto, SerializableGame } from 'libs';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { GameDto, SerializableGame, UpdateKickoffTimeDto } from 'libs';
 import * as admin from 'firebase-admin';
 import { NflScraperService } from '../scraper/scraper.service';
 
@@ -93,5 +93,34 @@ export class GamesService {
     }
 
     return gamesToUpdate;
+  }
+
+  async updateKickoffTime(
+    id: string,
+    updateKickoffTimeDto: UpdateKickoffTimeDto,
+  ): Promise<GameDto> {
+    const gameRef = admin.firestore().collection('games').doc(id);
+    const doc = await gameRef.get();
+
+    if (!doc.exists) {
+      throw new NotFoundException('Game not found');
+    }
+
+    await gameRef.update({
+      kickoffTime: new Date(updateKickoffTimeDto.kickoffTime),
+    });
+
+    const updatedDoc = await gameRef.get();
+    const data = updatedDoc.data();
+
+    return {
+      id: updatedDoc.id,
+      season: data.season,
+      awayTeam: data.awayTeam,
+      homeTeam: data.homeTeam,
+      kickoffTime: data.kickoffTime.toDate().toISOString(),
+      week: data.week,
+      winner: data.winner ?? null,
+    };
   }
 }
