@@ -9,14 +9,17 @@ COPY package*.json nx.json tsconfig.base.json ./
 COPY api/package*.json api/
 COPY libs/package*.json libs/
 
-# Install dependencies (root and api/libs)
-RUN npm ci --omit=dev
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy the rest of the monorepo
 COPY . .
 
 # Build the API app (output to dist/api)
 RUN npx nx build api
+
+# Prune dev dependencies
+RUN npm prune --production
 
 # Set environment variables
 ENV NODE_ENV=production
