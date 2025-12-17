@@ -69,6 +69,7 @@
     "axios": "^1.11.0",
     "cheerio": "^1.1.2",
     "csv-parser": "^3.2.0",
+    "dotenv": "^16.4.5",
     "firebase-admin": "^13.4.0"
   }
 }
