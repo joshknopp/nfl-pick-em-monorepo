@@ -82,7 +82,7 @@ export class NflScraperService {
         this.scrapeNFL(week, season, seasonType),
       ];
 
-      if (seasonType === 'REG') {
+      if (seasonType === 'REG' || seasonType === 'POST') {
         scraperPromises.push(this.scrapeCBS(week, season, seasonType));
       }
 
@@ -291,15 +291,20 @@ export class NflScraperService {
   private async scrapeCBS(
     week: number,
     season: number,
-    seasonType: SeasonType
+    seasonType: SeasonType,
   ): Promise<ScrapedResult[]> {
     try {
+      let url: string;
       if (seasonType === 'REG') {
+        url = `https://www.cbssports.com/nfl/scoreboard/${season}/regular/${week}/`;
+      } else if (seasonType === 'POST') {
+        url = `https://www.cbssports.com/nfl/scoreboard/${season}/postseason/${week}/`;
+      } else {
         this.logger.error(
-          `CBS supports seasonType === REG only, not ${seasonType}`
+          `CBS scraping is not supported for season type: ${seasonType}`,
         );
+        return [];
       }
-      const url = `https://www.cbssports.com/nfl/scoreboard/${season}/regular/${week}/`;
 
       const response = await axios.get(url, {
         timeout: 15000,
