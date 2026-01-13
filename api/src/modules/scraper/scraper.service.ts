@@ -21,7 +21,7 @@ interface ScrapedResult {
   status: string;
 }
 
-type SeasonType = 'REG' | 'PRE';
+type SeasonType = 'REG' | 'PRE' | 'POST';
 
 @Injectable()
 export class NflScraperService {
@@ -66,10 +66,14 @@ export class NflScraperService {
   async getWeekResults(
     week: number,
     season = 2025,
-    seasonType: SeasonType = 'REG'
+    seasonType: SeasonType = 'REG',
   ): Promise<GameResult[]> {
+    if (week > 18) {
+      seasonType = 'POST';
+    }
+
     this.logger.log(
-      `Fetching results for Week ${week}, ${season} season, type ${seasonType}`
+      `Fetching results for Week ${week}, ${season} season, type ${seasonType}`,
     );
 
     try {
@@ -78,12 +82,12 @@ export class NflScraperService {
         this.scrapeNFL(week, season, seasonType),
       ];
 
-      if (seasonType === 'REG') {
+      if (seasonType === 'REG' || seasonType === 'POST') {
         scraperPromises.push(this.scrapeCBS(week, season, seasonType));
       }
 
       const [espnResults, nflResults, cbsResults] = await Promise.allSettled(
-        scraperPromises
+        scraperPromises,
       );
 
       const espnGames =
@@ -114,11 +118,18 @@ export class NflScraperService {
   private async scrapeESPN(
     week: number,
     season: number,
-    seasonType: SeasonType
+    seasonType: SeasonType,
   ): Promise<ScrapedResult[]> {
     try {
-      const espnSeasonType = seasonType === 'REG' ? 2 : 1;
-      const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=${espnSeasonType}&week=${week}`;
+      let espnSeasonType = seasonType === 'REG' ? 2 : 1;
+      let espnWeek = week;
+
+      if (seasonType === 'POST') {
+        espnSeasonType = 3;
+        espnWeek = week - 18;
+      }
+
+      const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=${espnSeasonType}&week=${espnWeek}`;
 
       const response = await axios.get(url, {
         timeout: 15000,
@@ -185,10 +196,14 @@ export class NflScraperService {
   private async scrapeNFL(
     week: number,
     season: number,
-    seasonType: SeasonType
+    seasonType: SeasonType,
   ): Promise<ScrapedResult[]> {
     try {
-      const url = `https://www.nfl.com/scores/${season}/${seasonType}${week}`;
+      let url = `https://www.nfl.com/scores/${season}/${seasonType}${week}`;
+      if (seasonType === 'POST') {
+        const nflWeek = week - 18;
+        url = `https://www.nfl.com/scores/${season}/post${nflWeek}`;
+      }
 
       const response = await axios.get(url, {
         timeout: 15000,
@@ -276,15 +291,20 @@ export class NflScraperService {
   private async scrapeCBS(
     week: number,
     season: number,
-    seasonType: SeasonType
+    seasonType: SeasonType,
   ): Promise<ScrapedResult[]> {
     try {
+      let url: string;
       if (seasonType === 'REG') {
+        url = `https://www.cbssports.com/nfl/scoreboard/${season}/regular/${week}/`;
+      } else if (seasonType === 'POST') {
+        url = `https://www.cbssports.com/nfl/scoreboard/${season}/postseason/${week}/`;
+      } else {
         this.logger.error(
-          `CBS supports seasonType === REG only, not ${seasonType}`
+          `CBS scraping is not supported for season type: ${seasonType}`,
         );
+        return [];
       }
-      const url = `https://www.cbssports.com/nfl/scoreboard/${season}/regular/${week}/`;
 
       const response = await axios.get(url, {
         timeout: 15000,
