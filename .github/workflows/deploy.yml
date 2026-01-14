@@ -42,10 +42,16 @@ jobs:
         run: |
           docker build -t ${{ github.ref == 'refs/heads/main' && 'us-east1-docker.pkg.dev/nfl-pick-em-prod/api-repo/api:latest' || 'us-east1-docker.pkg.dev/nfl-pick--em-dev/api-repo/api:latest' }} .
 
-      - name: Prepare environment variables for Cloud Run (prod only)
+      - name: Prepare environment variables for Cloud Run (prod)
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           export ENV_VARS=$(grep -v '^#' api/.env.prod | xargs | sed 's/ /,/g')
+          echo "ENV_VARS=$ENV_VARS" >> $GITHUB_ENV
+
+      - name: Prepare environment variables for Cloud Run (dev)
+        if: ${{ github.ref == 'refs/heads/develop' }}
+        run: |
+          export ENV_VARS=$(grep -v '^#' api/.env.development | xargs | sed 's/ /,/g')
           echo "ENV_VARS=$ENV_VARS" >> $GITHUB_ENV
 
       - name: Push Docker image to Artifact Registry
@@ -68,5 +74,6 @@ jobs:
                 --platform=managed \
                 --region=us-east1 \
                 --allow-unauthenticated \
-                --port=8080
+                --port=8080 \
+                --set-env-vars="$ENV_VARS"
             fi
