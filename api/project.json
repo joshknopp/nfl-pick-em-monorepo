@@ -6,7 +6,6 @@
   "tags": [],
   "targets": {
     "build": {
-      "dependsOn": ["^build"],
       "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
