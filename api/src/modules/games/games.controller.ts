@@ -1,13 +1,12 @@
-import { Controller, Get, Post, UseGuards, Patch, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GameDto, UpdateKickoffTimeDto } from 'libs';
+import { GameDto } from 'libs';
 import { AuthGuard } from '../../shared/guards/auth.guard';
-import { AdminGuard } from '../../shared/guards/admin.guard';
 import { GamesService } from './games.service';
 
 @ApiTags('Games')
@@ -35,16 +34,5 @@ export class GamesController {
   })
   async checkForEndedGames(): Promise<GameDto[]> {
     return await this.gamesService.checkForEndedGames();
-  }
-
-  @UseGuards(AuthGuard, AdminGuard)
-  @Patch(':id/kickoff')
-  @ApiOperation({ summary: 'Update the kickoff time for a game' })
-  @ApiResponse({ status: 200, description: 'The updated game.' })
-  async updateKickoffTime(
-    @Param('id') id: string,
-    @Body() updateKickoffTimeDto: UpdateKickoffTimeDto,
-  ): Promise<GameDto> {
-    return await this.gamesService.updateKickoffTime(id, updateKickoffTimeDto);
   }
 }
