@@ -15,9 +15,19 @@ export class GamesService {
     private readonly logger: Logger
   ) {}
 
-  async getGames(): Promise<GameDto[]> {
+  getCurrentSeasonRange(today: Date = new Date()): { start: Date; end: Date; season: number } {
+    const year = today.getFullYear();
+    const month = today.getMonth(); // 0-indexed: 0 = Jan, 1 = Feb, 2 = Mar, 3 = Apr
+    const seasonYear = month < 3 ? year - 1 : year;
+    const start = new Date(seasonYear, 3, 1, 0, 0, 0, 0);
+    const end = new Date(seasonYear + 1, 2, 31, 23, 59, 59, 999);
+    return { start, end, season: seasonYear };
+  }
+
+  async getGames(today: Date = new Date()): Promise<GameDto[]> {
+    const { start, end } = this.getCurrentSeasonRange(today);
     const snapshot = await admin.firestore().collection('games').get();
-    return snapshot.docs.map((doc) => {
+    const allGames = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -30,6 +40,12 @@ export class GamesService {
         week: data.week,
         winner: data.winner ?? null,
       };
+    });
+
+    return allGames.filter((game) => {
+      if (!game.kickoffTime) return false;
+      const kickoffDate = new Date(game.kickoffTime);
+      return kickoffDate >= start && kickoffDate <= end;
     });
   }
 
