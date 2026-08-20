@@ -1,19 +1,38 @@
 <div class="admin-container">
   <h2>Admin Panel</h2>
   <p>This is the admin panel. Here you can perform administrative tasks.</p>
-  <button
-    class="btn btn-primary"
-    (click)="updateWinners()"
-    [disabled]="isUpdating"
-  >
-    <span *ngIf="!isUpdating">Update Winners</span>
-    <span *ngIf="isUpdating">
-      <span class="spinner-sm"></span>
-      Updating...
-    </span>
-  </button>
+
+  <div class="admin-actions">
+    <button
+      class="btn btn-primary"
+      (click)="updateWinners()"
+      [disabled]="isUpdating"
+    >
+      <span *ngIf="!isUpdating">Update Winners</span>
+      <span *ngIf="isUpdating">
+        <span class="spinner-sm"></span>
+        Updating...
+      </span>
+    </button>
+
+    <button
+      class="btn btn-secondary"
+      (click)="deactivateAllUsers()"
+      [disabled]="isDeactivating"
+    >
+      <span *ngIf="!isDeactivating">Deactivate All Users (New Season)</span>
+      <span *ngIf="isDeactivating">
+        <span class="spinner-sm"></span>
+        Deactivating...
+      </span>
+    </button>
+  </div>
+
   <div *ngIf="updatedGamesCount !== null" class="success-message">
     Successfully updated {{ updatedGamesCount }} games.
+  </div>
+  <div *ngIf="deactivateSuccessMessage" class="success-message">
+    {{ deactivateSuccessMessage }}
   </div>
   <div *ngIf="error" class="error-message">
     {{ error }}

@@ -22,18 +22,24 @@ export class LeaderboardService {
       .sort((a, b) => a.kickoffTime.localeCompare(b.kickoffTime));
     const picks = await this.picksService.getLeaguePicks();
 
-    // Fetch usernames from Firestore for all users
+    // Fetch usernames and active state from Firestore for all users
     const usernameMap: Record<string, string> = {};
+    const activeUserIds = new Set<string>();
     const db = admin.firestore();
     const userDocs = await db.collection('users').get();
     userDocs.forEach((doc) => {
       const data = doc.data();
+      if (data?.isActive === true) {
+        activeUserIds.add(doc.id);
+      }
       if (data?.username) {
         usernameMap[doc.id] = data.username;
       }
     });
 
-    const leaderboard = users.map((user) => {
+    const activeUsers = users.filter((user) => activeUserIds.has(user.uid));
+
+    const leaderboard = activeUsers.map((user) => {
       const userPicks = picks.filter((pick) => pick.user === user.uid);
       const { wins, losses } = this.calculateWinLoss(userPicks, games);
       // Use username if available, else displayName, else email
