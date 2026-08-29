@@ -24,6 +24,13 @@ export class AuthGuard implements CanActivate {
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
       request.user = { id: decodedToken.uid, ...decodedToken };
+
+      const userRef = admin.firestore().collection('users').doc(decodedToken.uid);
+      const userDoc = await userRef.get();
+      if (!userDoc.exists || userDoc.data()?.isActive !== true) {
+        await userRef.set({ isActive: true }, { merge: true });
+      }
+
       return true;
     } catch (err) {
       throw new UnauthorizedException('Invalid Firebase token');
