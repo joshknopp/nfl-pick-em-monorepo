@@ -86,9 +86,20 @@ export class GamesService {
 
     for (const key in gamesByWeek) {
       const [season, week] = key.split('-');
+      const seasonNum = parseInt(season);
+      const weekNum = parseInt(week);
+      const gamesForThisWeek = gamesByWeek[key];
+      
+      // Log detailed info about which documents triggered this query
+      this.logger.log(
+        `Processing season ${seasonNum}, week ${weekNum} - ${gamesForThisWeek.length} game(s): ${gamesForThisWeek
+          .map((g) => `${g.id} (${g.awayTeam}@${g.homeTeam}, kickoff: ${g.kickoffTime.toISOString()})`)
+          .join(' | ')}`
+      );
+      
       const results = await this.nflScraperService.getWeekResults(
-        parseInt(week),
-        parseInt(season)
+        weekNum,
+        seasonNum
       );
 
       for (const game of gamesByWeek[key]) {
