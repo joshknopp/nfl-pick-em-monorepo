@@ -99,7 +99,10 @@ export class NflScraperService {
 
       return this.findConsensusResults(espnGames, nflGames, cbsGames);
     } catch (error) {
-      this.logger.error('Error fetching week results:', error);
+      this.logger.error(
+        `Error fetching week results for week ${week}, season ${season}: ${error.message}`,
+        error.stack
+      );
       throw error;
     }
   }
@@ -116,10 +119,9 @@ export class NflScraperService {
     season: number,
     seasonType: SeasonType
   ): Promise<ScrapedResult[]> {
+    const espnSeasonType = seasonType === 'REG' ? 2 : 1;
+    const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=${espnSeasonType}&week=${week}`;
     try {
-      const espnSeasonType = seasonType === 'REG' ? 2 : 1;
-      const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=${espnSeasonType}&week=${week}`;
-
       const response = await axios.get(url, {
         timeout: 15000,
         headers: {
@@ -177,7 +179,10 @@ export class NflScraperService {
       this.logger.log(`ESPN: Found ${results.length} games`);
       return results;
     } catch (error) {
-      this.logger.error('ESPN scraping error:', error.message);
+      this.logger.error(
+        `ESPN scraping error for URL ${url}: ${error.message}`,
+        error.stack
+      );
       return [];
     }
   }
@@ -187,9 +192,8 @@ export class NflScraperService {
     season: number,
     seasonType: SeasonType
   ): Promise<ScrapedResult[]> {
+    const url = `https://www.nfl.com/scores/${season}/${seasonType}${week}`;
     try {
-      const url = `https://www.nfl.com/scores/${season}/${seasonType}${week}`;
-
       const response = await axios.get(url, {
         timeout: 15000,
         headers: {
@@ -261,14 +265,24 @@ export class NflScraperService {
             });
           }
         } catch (parseError) {
-          this.logger.error('NFL JSON parsing error:', parseError.message);
+          this.logger.error(
+            `NFL JSON parsing error for URL ${url}: ${parseError.message}`,
+            parseError.stack
+          );
         }
+      } else {
+        this.logger.warn(
+          `NFL: could not find window.__INITIAL_DATA__ in response from ${url}`
+        );
       }
 
       this.logger.log(`NFL: Found ${results.length} games`);
       return results;
     } catch (error) {
-      this.logger.error('NFL scraping error:', error.message);
+      this.logger.error(
+        `NFL scraping error for URL ${url}: ${error.message}`,
+        error.stack
+      );
       return [];
     }
   }
@@ -278,13 +292,13 @@ export class NflScraperService {
     season: number,
     seasonType: SeasonType
   ): Promise<ScrapedResult[]> {
+    const url = `https://www.cbssports.com/nfl/scoreboard/${season}/regular/${week}/`;
     try {
       if (seasonType !== 'REG') {
         this.logger.error(
           `CBS supports seasonType === REG only, not ${seasonType}`
         );
       }
-      const url = `https://www.cbssports.com/nfl/scoreboard/${season}/regular/${week}/`;
 
       const response = await axios.get(url, {
         timeout: 15000,
@@ -357,14 +371,24 @@ export class NflScraperService {
             });
           }
         } catch (parseError) {
-          this.logger.error('CBS JSON parsing error:', parseError.message);
+          this.logger.error(
+            `CBS JSON parsing error for URL ${url}: ${parseError.message}`,
+            parseError.stack
+          );
         }
+      } else {
+        this.logger.warn(
+          `CBS: could not find window.INITIAL_STATE in response from ${url}`
+        );
       }
 
       this.logger.log(`CBS: Found ${results.length} games`);
       return results;
     } catch (error) {
-      this.logger.error('CBS scraping error:', error.message);
+      this.logger.error(
+        `CBS scraping error for URL ${url}: ${error.message}`,
+        error.stack
+      );
       return [];
     }
   }
