@@ -279,7 +279,7 @@ export class NflScraperService {
     seasonType: SeasonType
   ): Promise<ScrapedResult[]> {
     try {
-      if (seasonType === 'REG') {
+      if (seasonType !== 'REG') {
         this.logger.error(
           `CBS supports seasonType === REG only, not ${seasonType}`
         );
