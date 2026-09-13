@@ -107,7 +107,11 @@ export class GamesService {
           (r) => r.homeTeam === game.homeTeam && r.awayTeam === game.awayTeam
         );
 
-        if (result && result.winner) {
+        if (!result) {
+          this.logger.warn(
+            `No scraper result match found for game ${game.id} (${game.awayTeam}@${game.homeTeam})`
+          );
+        } else if (result && result.winner) {
           this.logger.log(`Found winner for game ${game.id}: ${result.winner}`);
           await admin
             .firestore()
@@ -115,6 +119,10 @@ export class GamesService {
             .doc(game.id)
             .update({ winner: result.winner });
           gamesToUpdate.push({ ...game, winner: result.winner });
+        } else {
+          this.logger.log(
+            `Game ${game.id} (${game.awayTeam}@${game.homeTeam}) found in scraped results but has no winner yet (status: ${result.status})`
+          );
         }
       }
     }

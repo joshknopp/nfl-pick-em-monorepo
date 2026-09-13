@@ -19,7 +19,7 @@ export class GamesSchedulerService {
         )}`
       );
     } catch (error) {
-      this.logger.error('Scheduled job failed:', error.message);
+      this.logger.error(`Scheduled job failed: ${error.message}`, error.stack);
     }
   }
 }
