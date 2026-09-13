@@ -65,7 +65,7 @@ export class NflScraperService {
 
   async getWeekResults(
     week: number,
-    season = 2025,
+    season = 2026,
     seasonType: SeasonType = 'REG'
   ): Promise<GameResult[]> {
     this.logger.log(
@@ -106,7 +106,7 @@ export class NflScraperService {
 
   async getPreseasonWeekResults(
     week: number,
-    season = 2025
+    season = 2026
   ): Promise<GameResult[]> {
     return this.getWeekResults(week, season, 'PRE');
   }
