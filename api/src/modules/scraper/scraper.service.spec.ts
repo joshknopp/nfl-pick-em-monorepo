@@ -168,6 +168,22 @@ describe('NflScraperService', () => {
     });
   });
 
+  describe('team abbreviation normalization and equality', () => {
+    it('should normalize WSH and WAS, and JAC and JAX', () => {
+      expect(service.normalizeTeamAbbreviation('WSH')).toBe('WAS');
+      expect(service.normalizeTeamAbbreviation('WAS')).toBe('WAS');
+      expect(service.normalizeTeamAbbreviation('JAC')).toBe('JAX');
+      expect(service.normalizeTeamAbbreviation('JAX')).toBe('JAX');
+    });
+
+    it('should treat WAS and WSH as equal', () => {
+      expect(service.areTeamsEqual('WAS', 'WSH')).toBe(true);
+      expect(service.areTeamsEqual('WSH', 'WAS')).toBe(true);
+      expect(service.areTeamsEqual('JAC', 'JAX')).toBe(true);
+      expect(service.areTeamsEqual('WAS', 'PHI')).toBe(false);
+    });
+  });
+
   describe('getWeekResults', () => {
     it('should aggregate consensus results across scrapers', async () => {
       const mockEspnResponse = {
