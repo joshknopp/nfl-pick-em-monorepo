@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ApiService } from '../api.service';
 import { AuthService } from '../auth.service';
 import { GameDto } from 'libs';
@@ -18,7 +19,7 @@ interface LeaderboardData {
   templateUrl: './leaderboard.html',
   styleUrls: ['./leaderboard.css'],
 })
-export class LeaderboardComponent implements OnInit {
+export class LeaderboardComponent implements OnInit, OnDestroy {
   leaderboardData: LeaderboardData | null = null;
   isLoading = true;
   selectedWeek = 1;
@@ -29,10 +30,17 @@ export class LeaderboardComponent implements OnInit {
 
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
+  private leaderboardSub?: Subscription;
 
   ngOnInit() {
     this.currentUser = this.authService.user;
     this.loadInitialData();
+  }
+
+  ngOnDestroy() {
+    if (this.leaderboardSub) {
+      this.leaderboardSub.unsubscribe();
+    }
   }
 
   private loadInitialData() {
@@ -71,16 +79,24 @@ export class LeaderboardComponent implements OnInit {
 
   loadLeaderboard() {
     this.isLoading = true;
-    this.apiService.get(`leaderboard?week=${this.selectedWeek}`).subscribe({
-      next: (data: LeaderboardData) => {
-        this.leaderboardData = data;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading leaderboard:', error);
-        this.isLoading = false;
-      },
-    });
+    if (this.leaderboardSub) {
+      this.leaderboardSub.unsubscribe();
+    }
+    const targetWeek = this.selectedWeek;
+    this.leaderboardSub = this.apiService
+      .get(`leaderboard?week=${targetWeek}`)
+      .subscribe({
+        next: (data: LeaderboardData) => {
+          if (this.selectedWeek === targetWeek) {
+            this.leaderboardData = data;
+            this.isLoading = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading leaderboard:', error);
+          this.isLoading = false;
+        },
+      });
   }
 
   setWeekBounds() {
