@@ -22,6 +22,11 @@ describe('GamesService', () => {
 
   const mockNflScraperService = {
     getWeekResults: jest.fn(),
+    areTeamsEqual: jest.fn((a, b) => {
+      if (!a || !b) return a === b;
+      const norm = (s: string) => (s === 'WSH' ? 'WAS' : s === 'JAC' ? 'JAX' : s);
+      return norm(a) === norm(b);
+    }),
   };
 
   beforeEach(async () => {
@@ -145,6 +150,42 @@ describe('GamesService', () => {
 
       expect(result).toEqual([]);
       expect(mockNflScraperService.getWeekResults).not.toHaveBeenCalled();
+    });
+
+    it('should match games with WSH vs WAS team abbreviations and update winner using game team representation', async () => {
+      const gameId = '2026-01-wsh-at-phi';
+      const gameData = {
+        season: 2026,
+        week: 1,
+        awayTeam: 'WSH',
+        homeTeam: 'PHI',
+        kickoffTime: { toDate: () => new Date(Date.now() - 3 * 60 * 60 * 1000) },
+        winner: null,
+      };
+      mockFirestore.collection.mockReturnValue({
+        get: mockFirestore.get.mockResolvedValue({
+          docs: [{ id: gameId, data: () => gameData }],
+        }),
+        doc: mockFirestore.doc.mockReturnValue({
+          update: mockFirestore.update,
+        }),
+      } as any);
+
+      mockNflScraperService.getWeekResults.mockResolvedValue([
+        {
+          homeTeam: 'PHI',
+          awayTeam: 'WAS',
+          winner: 'WAS',
+        },
+      ]);
+
+      const result = await service.checkForEndedGames();
+
+      expect(mockNflScraperService.getWeekResults).toHaveBeenCalledWith(1, 2026);
+      expect(mockFirestore.doc).toHaveBeenCalledWith(gameId);
+      expect(mockFirestore.update).toHaveBeenCalledWith({ winner: 'WSH' });
+      expect(result).toHaveLength(1);
+      expect(result[0].winner).toBe('WSH');
     });
 
     it('should call scraper and update game if winner is found', async () => {
