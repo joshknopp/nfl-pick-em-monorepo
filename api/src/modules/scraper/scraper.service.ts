@@ -60,7 +60,7 @@ export class NflScraperService {
     SEA: ['Seahawks', 'Seattle Seahawks', 'Seattle'],
     TB: ['Buccaneers', 'Tampa Bay Buccaneers', 'Tampa Bay'],
     TEN: ['Titans', 'Tennessee Titans', 'Tennessee'],
-    WAS: ['Commanders', 'Washington Commanders', 'Washington'],
+    WAS: ['Commanders', 'Washington Commanders', 'Washington', 'WSH'],
   };
 
   async getWeekResults(
@@ -401,13 +401,23 @@ export class NflScraperService {
     }
   }
 
-  private normalizeTeamAbbreviation(abbreviation: string): string {
-    if (abbreviation && abbreviation.toUpperCase() === 'JAC') {
+  normalizeTeamAbbreviation(abbreviation: string): string {
+    if (!abbreviation) return abbreviation;
+    const upper = abbreviation.toUpperCase();
+    if (upper === 'JAC') {
       return 'JAX';
-    } else if (abbreviation && abbreviation.toUpperCase() === 'WSH') {
+    } else if (upper === 'WSH') {
       return 'WAS';
     }
-    return abbreviation;
+    return upper;
+  }
+
+  areTeamsEqual(teamA: string, teamB: string): boolean {
+    if (!teamA || !teamB) return teamA === teamB;
+    return (
+      this.normalizeTeamAbbreviation(teamA) ===
+      this.normalizeTeamAbbreviation(teamB)
+    );
   }
 
   private findConsensusResults(
