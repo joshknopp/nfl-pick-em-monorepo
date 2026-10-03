@@ -75,6 +75,134 @@ describe('NflScraperService', () => {
     });
   });
 
+  describe('consecutive timeout error escalating logger', () => {
+    let warnSpy: jest.SpyInstance;
+    let errorSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      warnSpy = jest.spyOn(service['logger'], 'warn').mockImplementation();
+      errorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
+    });
+
+    it('should log WARN for 1st and 2nd timeouts, and ERROR on 3rd timeout', async () => {
+      const timeoutError = {
+        code: 'ECONNABORTED',
+        message: 'timeout of 15000ms exceeded',
+        stack: 'Error: timeout...',
+      };
+
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeESPN'](1, 2024, 'REG');
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Transient timeout scraping ESPN (Consecutive failure #1/3)'),
+        timeoutError.stack
+      );
+      expect(errorSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockClear();
+      errorSpy.mockClear();
+
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeESPN'](1, 2024, 'REG');
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Transient timeout scraping ESPN (Consecutive failure #2/3)'),
+        timeoutError.stack
+      );
+      expect(errorSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockClear();
+      errorSpy.mockClear();
+
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeESPN'](1, 2024, 'REG');
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Scraper failed consecutively 3 times for ESPN'),
+        timeoutError.stack
+      );
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it('should work across NFL and CBS scrapers as well', async () => {
+      const timeoutError = {
+        code: 'ECONNABORTED',
+        message: 'timeout of 15000ms exceeded',
+        stack: 'Error: timeout...',
+      };
+
+      // Test NFL timeouts
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeNFL'](1, 2024, 'REG');
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Transient timeout scraping NFL (Consecutive failure #1/3)'),
+        timeoutError.stack
+      );
+
+      // Test CBS timeouts
+      warnSpy.mockClear();
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeCBS'](1, 2024, 'REG');
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Transient timeout scraping CBS (Consecutive failure #1/3)'),
+        timeoutError.stack
+      );
+    });
+
+    it('should reset consecutive failure counter on successful response', async () => {
+      const timeoutError = {
+        code: 'ECONNABORTED',
+        message: 'timeout of 15000ms exceeded',
+        stack: 'Error: timeout...',
+      };
+
+      // 2 consecutive timeouts
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeESPN'](1, 2024, 'REG');
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeESPN'](1, 2024, 'REG');
+
+      expect(service['consecutiveFailures'].espn).toBe(2);
+
+      // Successful fetch
+      mockedAxios.get.mockResolvedValueOnce({ data: { events: [] } });
+      await service['scrapeESPN'](1, 2024, 'REG');
+
+      expect(service['consecutiveFailures'].espn).toBe(0);
+
+      // Next timeout should be failure #1 again
+      warnSpy.mockClear();
+      errorSpy.mockClear();
+
+      mockedAxios.get.mockRejectedValueOnce(timeoutError);
+      await service['scrapeESPN'](1, 2024, 'REG');
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Transient timeout scraping ESPN (Consecutive failure #1/3)'),
+        timeoutError.stack
+      );
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('should immediately log ERROR for non-timeout failures without incrementing counter', async () => {
+      const nonTimeoutError = {
+        message: '401 Unauthorized',
+        stack: 'Error: 401...',
+      };
+
+      mockedAxios.get.mockRejectedValueOnce(nonTimeoutError);
+      await service['scrapeESPN'](1, 2024, 'REG');
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Critical error scraping ESPN: 401 Unauthorized'),
+        nonTimeoutError.stack
+      );
+      expect(warnSpy).not.toHaveBeenCalled();
+      expect(service['consecutiveFailures'].espn).toBe(0);
+    });
+  });
+
   describe('scrapeNFL', () => {
     it('should fetch and parse NFL scoreboard HTML if __INITIAL_DATA__ present', async () => {
       const mockGameData = {
