@@ -1,14 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import * as admin from 'firebase-admin';
 import { GameDto, PickDTO } from 'libs';
 import { GamesService } from '../games/games.service';
 import { PicksService } from '../picks/picks.service';
 
+interface ActiveUsersCache {
+  activeUserIds: string[];
+  usernameMap: Record<string, string>;
+}
+
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
 @Injectable()
 export class LeaderboardService {
   constructor(
     private readonly gamesService: GamesService,
-    private readonly picksService: PicksService
+    private readonly picksService: PicksService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   async getLeaderboard(
@@ -22,20 +32,9 @@ export class LeaderboardService {
       .sort((a, b) => a.kickoffTime.localeCompare(b.kickoffTime));
     const picks = await this.picksService.getLeaguePicks();
 
-    // Fetch usernames and active state from Firestore for all users
-    const usernameMap: Record<string, string> = {};
-    const activeUserIds = new Set<string>();
-    const db = admin.firestore();
-    const userDocs = await db.collection('users').get();
-    userDocs.forEach((doc) => {
-      const data = doc.data();
-      if (data?.isActive === true) {
-        activeUserIds.add(doc.id);
-      }
-      if (data?.username) {
-        usernameMap[doc.id] = data.username;
-      }
-    });
+    const { activeUserIds: cachedActiveUserIds, usernameMap } =
+      await this.getActiveUsersData();
+    const activeUserIds = new Set(cachedActiveUserIds);
 
     const leaderboard = users
       .filter((user) => activeUserIds.has(user.uid))
@@ -70,6 +69,35 @@ export class LeaderboardService {
       games: weekGames,
       leaderboard,
     };
+  }
+
+  private async getActiveUsersData(): Promise<ActiveUsersCache> {
+    const cacheKey = 'users:active';
+    const cached = await this.cacheManager.get<ActiveUsersCache>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const usernameMap: Record<string, string> = {};
+    const activeUserIds: string[] = [];
+    const db = admin.firestore();
+
+    const snapshot = await db
+      .collection('users')
+      .where('isActive', '==', true)
+      .get();
+
+    snapshot.forEach((doc) => {
+      activeUserIds.push(doc.id);
+      const data = doc.data();
+      if (data?.username) {
+        usernameMap[doc.id] = data.username;
+      }
+    });
+
+    const result: ActiveUsersCache = { activeUserIds, usernameMap };
+    await this.cacheManager.set(cacheKey, result, ONE_HOUR_MS);
+    return result;
   }
 
   private async getAllUsers() {
