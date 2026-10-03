@@ -27,6 +27,40 @@ type SeasonType = 'REG' | 'PRE';
 export class NflScraperService {
   private readonly logger = new Logger(NflScraperService.name);
 
+  private consecutiveFailures = {
+    espn: 0,
+    nfl: 0,
+    cbs: 0,
+  };
+
+  private handleScrapeError(source: 'espn' | 'nfl' | 'cbs', error: any) {
+    const isTimeout =
+      error.code === 'ECONNABORTED' ||
+      error.message?.toLowerCase().includes('timeout');
+
+    if (isTimeout) {
+      this.consecutiveFailures[source]++;
+      const failureCount = this.consecutiveFailures[source];
+
+      if (failureCount >= 3) {
+        this.logger.error(
+          `Scraper failed consecutively ${failureCount} times for ${source.toUpperCase()}.`,
+          error.stack
+        );
+      } else {
+        this.logger.warn(
+          `Transient timeout scraping ${source.toUpperCase()} (Consecutive failure #${failureCount}/3).`,
+          error.stack
+        );
+      }
+    } else {
+      this.logger.error(
+        `Critical error scraping ${source.toUpperCase()}: ${error.message}`,
+        error.stack
+      );
+    }
+  }
+
   // NFL team mappings - order matters! Most specific terms first
   private readonly TEAM_MAPPINGS = {
     ARI: ['Cardinals', 'Arizona Cardinals', 'Arizona'],
@@ -176,13 +210,11 @@ export class NflScraperService {
         });
       }
 
+      this.consecutiveFailures.espn = 0;
       this.logger.log(`ESPN: Found ${results.length} games`);
       return results;
     } catch (error) {
-      this.logger.error(
-        `ESPN scraping error for URL ${url}: ${error.message}`,
-        error.stack
-      );
+      this.handleScrapeError('espn', error);
       return [];
     }
   }
@@ -280,13 +312,11 @@ export class NflScraperService {
         );
       }
 
+      this.consecutiveFailures.nfl = 0;
       this.logger.log(`NFL: Found ${results.length} games`);
       return results;
     } catch (error) {
-      this.logger.error(
-        `NFL scraping error for URL ${url}: ${error.message}`,
-        error.stack
-      );
+      this.handleScrapeError('nfl', error);
       return [];
     }
   }
@@ -390,13 +420,11 @@ export class NflScraperService {
         );
       }
 
+      this.consecutiveFailures.cbs = 0;
       this.logger.log(`CBS: Found ${results.length} games`);
       return results;
     } catch (error) {
-      this.logger.error(
-        `CBS scraping error for URL ${url}: ${error.message}`,
-        error.stack
-      );
+      this.handleScrapeError('cbs', error);
       return [];
     }
   }
