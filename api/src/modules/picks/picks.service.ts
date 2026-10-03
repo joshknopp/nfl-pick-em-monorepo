@@ -1,4 +1,6 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import * as admin from 'firebase-admin';
 
 interface User {
@@ -26,6 +28,10 @@ interface GameDoc {
 
 @Injectable()
 export class PicksService {
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
+
   async getUserPicks(user: User): Promise<PickDTO[]> {
     if (!user || !user.id) {
       console.error('getUserPicks: user or user.id is undefined', user);
@@ -42,8 +48,16 @@ export class PicksService {
   }
 
   async getLeaguePicks(): Promise<PickDTO[]> {
+    const cacheKey = 'picks:all';
+    const cached = await this.cacheManager.get<PickDTO[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const snapshot = await admin.firestore().collection('picks').get();
-    return snapshot.docs.map((doc) => doc.data() as PickDTO);
+    const picks = snapshot.docs.map((doc) => doc.data() as PickDTO);
+    await this.cacheManager.set(cacheKey, picks);
+    return picks;
   }
 
   async saveUserPick(user: User, picksDto: PickDTO): Promise<PickDTO> {
@@ -78,6 +92,9 @@ export class PicksService {
       .collection('picks')
       .doc(this.getPickKey(user, picksDto))
       .set(pick, { merge: true }); // Using { merge: true } for a create or update
+
+    // Invalidate the league picks cache immediately upon save
+    await this.cacheManager.del('picks:all');
 
     return pick;
   }

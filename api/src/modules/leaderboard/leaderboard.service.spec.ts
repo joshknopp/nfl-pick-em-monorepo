@@ -2,9 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LeaderboardService } from './leaderboard.service';
 import { GamesService } from '../games/games.service';
 import { PicksService } from '../picks/picks.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as admin from 'firebase-admin';
 
 const mockListUsers = jest.fn();
+const mockCollectionWhere = jest.fn();
 const mockCollectionGet = jest.fn();
 
 const mockAuth = {
@@ -13,7 +15,9 @@ const mockAuth = {
 
 const mockFirestore = {
   collection: jest.fn().mockReturnValue({
-    get: mockCollectionGet,
+    where: mockCollectionWhere.mockReturnValue({
+      get: mockCollectionGet,
+    }),
   }),
 };
 
@@ -31,9 +35,16 @@ describe('LeaderboardService', () => {
   let service: LeaderboardService;
   let mockGamesService: Partial<GamesService>;
   let mockPicksService: Partial<PicksService>;
+  let mockCacheManager: { get: jest.Mock; set: jest.Mock; del: jest.Mock };
 
   beforeEach(async () => {
     jest.clearAllMocks();
+
+    mockCacheManager = {
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue(undefined),
+      del: jest.fn().mockResolvedValue(undefined),
+    };
 
     mockGamesService = {
       getGames: jest.fn().mockResolvedValue([
@@ -74,6 +85,7 @@ describe('LeaderboardService', () => {
         LeaderboardService,
         { provide: GamesService, useValue: mockGamesService },
         { provide: PicksService, useValue: mockPicksService },
+        { provide: CACHE_MANAGER, useValue: mockCacheManager },
       ],
     }).compile();
 
@@ -90,23 +102,15 @@ describe('LeaderboardService', () => {
       ],
     });
 
-    const mockDocs = [
+    const activeDocs = [
       {
         id: 'user-active-1',
         data: () => ({ isActive: true, username: 'active_one' }),
       },
-      {
-        id: 'user-inactive-2',
-        data: () => ({ isActive: false, username: 'inactive_two' }),
-      },
-      {
-        id: 'user-missing-flag-3',
-        data: () => ({ username: 'missing_three' }),
-      },
     ];
 
     mockCollectionGet.mockResolvedValue({
-      forEach: (callback: (doc: any) => void) => mockDocs.forEach(callback),
+      forEach: (callback: (doc: any) => void) => activeDocs.forEach(callback),
     });
 
     const result = await service.getLeaderboard(1, {
@@ -132,19 +136,8 @@ describe('LeaderboardService', () => {
       ],
     });
 
-    const mockDocs = [
-      {
-        id: 'user-1',
-        data: () => ({ isActive: false }),
-      },
-      {
-        id: 'user-2',
-        data: () => ({}),
-      },
-    ];
-
     mockCollectionGet.mockResolvedValue({
-      forEach: (callback: (doc: any) => void) => mockDocs.forEach(callback),
+      forEach: (callback: (doc: any) => void) => [].forEach(callback),
     });
 
     const result = await service.getLeaderboard(1, {
