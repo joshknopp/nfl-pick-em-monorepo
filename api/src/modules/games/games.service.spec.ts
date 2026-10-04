@@ -237,5 +237,59 @@ describe('GamesService', () => {
       expect(result).toHaveLength(1);
       expect(result[0].winner).toBe('ATL');
     });
+
+    it('should include games with missing winner field (undefined) and update when scraper finds winner', async () => {
+      const gameId = 'missing-winner-game-id';
+      const gameData = {
+        season: 2025,
+        week: 1,
+        awayTeam: 'DAL',
+        homeTeam: 'NYG',
+        kickoffTime: { toDate: () => new Date(Date.now() - 3 * 60 * 60 * 1000) },
+        // winner field intentionally omitted/missing
+      };
+      mockFirestore.get.mockResolvedValue({
+        docs: [{ id: gameId, data: () => gameData }],
+      });
+      mockFirestore.doc.mockReturnValue({
+        update: mockFirestore.update,
+      });
+
+      mockNflScraperService.getWeekResults.mockResolvedValue([
+        {
+          homeTeam: 'NYG',
+          awayTeam: 'DAL',
+          winner: 'DAL',
+        },
+      ]);
+
+      const result = await service.checkForEndedGames();
+
+      expect(mockNflScraperService.getWeekResults).toHaveBeenCalledWith(1, 2025);
+      expect(mockFirestore.doc).toHaveBeenCalledWith(gameId);
+      expect(mockFirestore.update).toHaveBeenCalledWith({ winner: 'DAL' });
+      expect(result).toHaveLength(1);
+      expect(result[0].winner).toBe('DAL');
+    });
+
+    it('should ignore games that already have a winner set', async () => {
+      const gameId = 'already-ended-game-id';
+      const gameData = {
+        season: 2025,
+        week: 1,
+        awayTeam: 'GB',
+        homeTeam: 'CHI',
+        kickoffTime: { toDate: () => new Date(Date.now() - 3 * 60 * 60 * 1000) },
+        winner: 'GB',
+      };
+      mockFirestore.get.mockResolvedValue({
+        docs: [{ id: gameId, data: () => gameData }],
+      });
+
+      const result = await service.checkForEndedGames();
+
+      expect(result).toEqual([]);
+      expect(mockNflScraperService.getWeekResults).not.toHaveBeenCalled();
+    });
   });
 });
