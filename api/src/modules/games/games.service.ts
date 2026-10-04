@@ -68,24 +68,23 @@ export class GamesService {
     this.logger.log('Checking for ended games without a winner...');
     const now = new Date();
     const twoAndAHalfHoursAgo = new Date(now.getTime() - 2.5 * 60 * 60 * 1000);
+    const { start } = this.getCurrentSeasonRange(now);
 
     const snapshot = await admin
       .firestore()
       .collection('games')
-      .where('winner', '==', null)
+      .where('kickoffTime', '>=', admin.firestore.Timestamp.fromDate(start))
+      .where('kickoffTime', '<=', admin.firestore.Timestamp.fromDate(twoAndAHalfHoursAgo))
       .get();
 
     const gamesToUpdate: GameDto[] = [];
     const gamesToCheck = snapshot.docs
       .map((doc) => {
         const data = doc.data() as GameDocument;
-        if (data.winner) {
-          return null;
-        }
         const kickoffTime = data.kickoffTime?.toDate?.() ?? data.kickoffTime;
         return { id: doc.id, ...data, kickoffTime: new Date(kickoffTime) };
       })
-      .filter((game) => game && game.kickoffTime < twoAndAHalfHoursAgo);
+      .filter((game) => !game.winner);
 
     if (gamesToCheck.length === 0) {
       this.logger.log('No games to check.');
