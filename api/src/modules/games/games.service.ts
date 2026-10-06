@@ -1,4 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { GameDto, SerializableGame } from 'libs';
 import * as admin from 'firebase-admin';
 import { NflScraperService } from '../scraper/scraper.service';
@@ -8,11 +10,14 @@ interface GameDocument extends SerializableGame {
   winner?: string | null;
 }
 
+const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+
 @Injectable()
 export class GamesService {
   constructor(
     private readonly nflScraperService: NflScraperService,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
   getCurrentSeasonRange(today: Date = new Date()): { start: Date; end: Date; season: number } {
@@ -25,9 +30,22 @@ export class GamesService {
   }
 
   async getGames(today: Date = new Date()): Promise<GameDto[]> {
-    const { start, end } = this.getCurrentSeasonRange(today);
-    const snapshot = await admin.firestore().collection('games').get();
-    const allGames = snapshot.docs.map((doc) => {
+    const { start, end, season } = this.getCurrentSeasonRange(today);
+    const cacheKey = `games:${season}`;
+
+    const cached = await this.cacheManager.get<GameDto[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const snapshot = await admin
+      .firestore()
+      .collection('games')
+      .where('kickoffTime', '>=', admin.firestore.Timestamp.fromDate(start))
+      .where('kickoffTime', '<=', admin.firestore.Timestamp.fromDate(end))
+      .get();
+
+    const games = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -42,31 +60,31 @@ export class GamesService {
       };
     });
 
-    return allGames.filter((game) => {
-      if (!game.kickoffTime) return false;
-      const kickoffDate = new Date(game.kickoffTime);
-      return kickoffDate >= start && kickoffDate <= end;
-    });
+    await this.cacheManager.set(cacheKey, games, FIVE_DAYS_MS);
+    return games;
   }
 
   async checkForEndedGames(): Promise<GameDto[]> {
     this.logger.log('Checking for ended games without a winner...');
     const now = new Date();
     const twoAndAHalfHoursAgo = new Date(now.getTime() - 2.5 * 60 * 60 * 1000);
+    const { start } = this.getCurrentSeasonRange(now);
 
-    const snapshot = await admin.firestore().collection('games').get();
+    const snapshot = await admin
+      .firestore()
+      .collection('games')
+      .where('kickoffTime', '>=', admin.firestore.Timestamp.fromDate(start))
+      .where('kickoffTime', '<=', admin.firestore.Timestamp.fromDate(twoAndAHalfHoursAgo))
+      .get();
 
     const gamesToUpdate: GameDto[] = [];
     const gamesToCheck = snapshot.docs
       .map((doc) => {
         const data = doc.data() as GameDocument;
-        if (data.winner) {
-          return null;
-        }
         const kickoffTime = data.kickoffTime?.toDate?.() ?? data.kickoffTime;
         return { id: doc.id, ...data, kickoffTime: new Date(kickoffTime) };
       })
-      .filter((game) => game && game.kickoffTime < twoAndAHalfHoursAgo);
+      .filter((game) => !game.winner);
 
     if (gamesToCheck.length === 0) {
       this.logger.log('No games to check.');
@@ -135,6 +153,21 @@ export class GamesService {
       }
     }
 
+    if (gamesToUpdate.length > 0) {
+      await this.invalidateGamesCache();
+    }
+
     return gamesToUpdate;
+  }
+
+  async invalidateGamesCache(season?: number): Promise<void> {
+    if (season) {
+      await this.cacheManager.del(`games:${season}`);
+    } else {
+      const currentSeason = this.getCurrentSeasonRange().season;
+      await this.cacheManager.del(`games:${currentSeason}`);
+      await this.cacheManager.del(`games:${currentSeason - 1}`);
+      await this.cacheManager.del(`games:${currentSeason + 1}`);
+    }
   }
 }

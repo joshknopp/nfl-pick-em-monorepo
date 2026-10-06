@@ -26,10 +26,7 @@ export class AuthGuard implements CanActivate {
       request.user = { id: decodedToken.uid, ...decodedToken };
 
       const userRef = admin.firestore().collection('users').doc(decodedToken.uid);
-      const userDoc = await userRef.get();
-      if (!userDoc.exists || userDoc.data()?.isActive !== true) {
-        await userRef.set({ isActive: true }, { merge: true });
-      }
+      await userRef.set({ isActive: true }, { merge: true });
 
       return true;
     } catch (err) {

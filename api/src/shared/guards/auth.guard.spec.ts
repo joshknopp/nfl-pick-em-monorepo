@@ -62,10 +62,9 @@ describe('AuthGuard', () => {
     );
   });
 
-  it('should set isActive=true if user document does not exist', async () => {
+  it('should set isActive=true directly on user document without reading first', async () => {
     const { context, request } = createMockContext('Bearer valid-token');
     mockAuth.verifyIdToken.mockResolvedValue({ uid: 'user123', email: 'user@example.com' });
-    mockDocRef.get.mockResolvedValue({ exists: false, data: () => null });
     mockDocRef.set.mockResolvedValue(undefined);
 
     const result = await guard.canActivate(context);
@@ -75,40 +74,6 @@ describe('AuthGuard', () => {
     expect(mockFirestore.collection).toHaveBeenCalledWith('users');
     expect(mockFirestore.collection('users').doc).toHaveBeenCalledWith('user123');
     expect(mockDocRef.set).toHaveBeenCalledWith({ isActive: true }, { merge: true });
-  });
-
-  it('should set isActive=true if user document exists with isActive=false', async () => {
-    const { context } = createMockContext('Bearer valid-token');
-    mockAuth.verifyIdToken.mockResolvedValue({ uid: 'user123' });
-    mockDocRef.get.mockResolvedValue({ exists: true, data: () => ({ isActive: false, username: 'testuser' }) });
-    mockDocRef.set.mockResolvedValue(undefined);
-
-    const result = await guard.canActivate(context);
-
-    expect(result).toBe(true);
-    expect(mockDocRef.set).toHaveBeenCalledWith({ isActive: true }, { merge: true });
-  });
-
-  it('should set isActive=true if user document exists without isActive property', async () => {
-    const { context } = createMockContext('Bearer valid-token');
-    mockAuth.verifyIdToken.mockResolvedValue({ uid: 'user123' });
-    mockDocRef.get.mockResolvedValue({ exists: true, data: () => ({ username: 'testuser' }) });
-    mockDocRef.set.mockResolvedValue(undefined);
-
-    const result = await guard.canActivate(context);
-
-    expect(result).toBe(true);
-    expect(mockDocRef.set).toHaveBeenCalledWith({ isActive: true }, { merge: true });
-  });
-
-  it('should take no action if isActive is already true', async () => {
-    const { context } = createMockContext('Bearer valid-token');
-    mockAuth.verifyIdToken.mockResolvedValue({ uid: 'user123' });
-    mockDocRef.get.mockResolvedValue({ exists: true, data: () => ({ isActive: true, username: 'testuser' }) });
-
-    const result = await guard.canActivate(context);
-
-    expect(result).toBe(true);
-    expect(mockDocRef.set).not.toHaveBeenCalled();
+    expect(mockDocRef.get).not.toHaveBeenCalled();
   });
 });
