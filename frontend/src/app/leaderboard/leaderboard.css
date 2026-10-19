@@ -55,6 +55,8 @@ th.sticky-column {
   background-color: #f9f9f9;
 }
 
+.table-striped > tbody > tr.current-user > .sticky-column,
+.table > tbody > tr.current-user > .sticky-column,
 .current-user .sticky-column {
   background-color: #f1f1d1;
 }
