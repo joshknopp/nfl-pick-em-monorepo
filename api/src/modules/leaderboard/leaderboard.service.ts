@@ -39,29 +39,40 @@ export class LeaderboardService {
     const leaderboard = users
       .filter((user) => activeUserIds.has(user.uid))
       .map((user) => {
-      const userPicks = picks.filter((pick) => pick.user === user.uid);
-      const { wins, losses } = this.calculateWinLoss(userPicks, games);
-      // Use username if available, else displayName, else email
-      const displayName =
-        usernameMap[user.uid] || user.displayName || user.email;
-      return {
-        user: {
-          uid: user.uid,
-          displayName,
-          email: user.email,
-        },
-        wins,
-        losses,
-        picks: this.getPicksForWeek(
+        const userPicks = picks.filter((pick) => pick.user === user.uid);
+        const { wins: seasonWins, losses: seasonLosses } = this.calculateWinLoss(
           userPicks,
-          weekGames,
-          user.uid,
-          currentUser.id
-        ),
-      };
-    });
+          games
+        );
+        const { wins: weekWins, losses: weekLosses } = this.calculateWinLoss(
+          userPicks,
+          weekGames
+        );
+        // Use username if available, else displayName, else email
+        const displayName =
+          usernameMap[user.uid] || user.displayName || user.email;
+        return {
+          user: {
+            uid: user.uid,
+            displayName,
+            email: user.email,
+          },
+          wins: seasonWins,
+          losses: seasonLosses,
+          seasonWins,
+          seasonLosses,
+          weekWins,
+          weekLosses,
+          picks: this.getPicksForWeek(
+            userPicks,
+            weekGames,
+            user.uid,
+            currentUser.id
+          ),
+        };
+      });
 
-    // Sort users by wins
+    // Sort users by season wins by default
     leaderboard.sort((a, b) => b.wins - a.wins);
 
     return {
