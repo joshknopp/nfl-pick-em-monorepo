@@ -126,6 +126,87 @@ describe('LeaderboardService', () => {
     });
     expect(result.leaderboard[0].wins).toBe(1);
     expect(result.leaderboard[0].losses).toBe(0);
+    expect(result.leaderboard[0].seasonWins).toBe(1);
+    expect(result.leaderboard[0].seasonLosses).toBe(0);
+    expect(result.leaderboard[0].weekWins).toBe(1);
+    expect(result.leaderboard[0].weekLosses).toBe(0);
+  });
+
+  it('should correctly calculate both season and week win/loss records', async () => {
+    mockGamesService.getGames = jest.fn().mockResolvedValue([
+      {
+        season: 2024,
+        week: 1,
+        awayTeam: 'Lions',
+        homeTeam: 'Chiefs',
+        kickoffTime: '2024-09-05T20:20:00Z',
+        winner: 'Chiefs',
+      },
+      {
+        season: 2024,
+        week: 2,
+        awayTeam: 'Bills',
+        homeTeam: 'Dolphins',
+        kickoffTime: '2024-09-12T20:20:00Z',
+        winner: 'Bills',
+      },
+    ]);
+
+    mockPicksService.getLeaguePicks = jest.fn().mockResolvedValue([
+      {
+        user: 'user-active-1',
+        season: 2024,
+        week: 1,
+        awayTeam: 'Lions',
+        homeTeam: 'Chiefs',
+        pickWinner: 'Lions', // week 1 loss
+      },
+      {
+        user: 'user-active-1',
+        season: 2024,
+        week: 2,
+        awayTeam: 'Bills',
+        homeTeam: 'Dolphins',
+        pickWinner: 'Bills', // week 2 win
+      },
+    ]);
+
+    mockListUsers.mockResolvedValue({
+      users: [
+        { uid: 'user-active-1', email: 'active1@example.com', displayName: 'Active User 1' },
+      ],
+    });
+
+    const activeDocs = [
+      {
+        id: 'user-active-1',
+        data: () => ({ isActive: true, username: 'active_one' }),
+      },
+    ];
+
+    mockCollectionGet.mockResolvedValue({
+      forEach: (callback: (doc: any) => void) => activeDocs.forEach(callback),
+    });
+
+    const week2Result = await service.getLeaderboard(2, {
+      id: 'user-active-1',
+      email: 'active1@example.com',
+    });
+
+    expect(week2Result.leaderboard[0].seasonWins).toBe(1);
+    expect(week2Result.leaderboard[0].seasonLosses).toBe(1);
+    expect(week2Result.leaderboard[0].weekWins).toBe(1);
+    expect(week2Result.leaderboard[0].weekLosses).toBe(0);
+
+    const week1Result = await service.getLeaderboard(1, {
+      id: 'user-active-1',
+      email: 'active1@example.com',
+    });
+
+    expect(week1Result.leaderboard[0].seasonWins).toBe(1);
+    expect(week1Result.leaderboard[0].seasonLosses).toBe(1);
+    expect(week1Result.leaderboard[0].weekWins).toBe(0);
+    expect(week1Result.leaderboard[0].weekLosses).toBe(1);
   });
 
   it('should exclude user if isActive is false or missing in Firestore', async () => {

@@ -12,6 +12,8 @@ interface LeaderboardData {
   leaderboard: any[];
 }
 
+export type LeaderboardViewMode = 'season' | 'week';
+
 @Component({
   selector: 'app-leaderboard',
   standalone: true,
@@ -27,6 +29,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   maxWeek = 1;
   currentUser: any;
   games: GameDto[] = [];
+  viewMode: LeaderboardViewMode = 'season';
 
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
@@ -77,6 +80,13 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  setViewMode(mode: LeaderboardViewMode) {
+    if (this.viewMode !== mode) {
+      this.viewMode = mode;
+      this.sortLeaderboard();
+    }
+  }
+
   loadLeaderboard() {
     this.isLoading = true;
     if (this.leaderboardSub) {
@@ -89,6 +99,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
         next: (data: LeaderboardData) => {
           if (this.selectedWeek === targetWeek) {
             this.leaderboardData = data;
+            this.sortLeaderboard();
             this.isLoading = false;
           }
         },
@@ -97,6 +108,53 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
       });
+  }
+
+  sortLeaderboard() {
+    if (!this.leaderboardData || !this.leaderboardData.leaderboard) {
+      return;
+    }
+
+    this.leaderboardData.leaderboard.sort((a, b) => {
+      if (this.viewMode === 'week') {
+        const aWins = a.weekWins ?? 0;
+        const bWins = b.weekWins ?? 0;
+        if (bWins !== aWins) {
+          return bWins - aWins;
+        }
+        const aLosses = a.weekLosses ?? 0;
+        const bLosses = b.weekLosses ?? 0;
+        if (aLosses !== bLosses) {
+          return aLosses - bLosses;
+        }
+      } else {
+        const aWins = a.seasonWins ?? a.wins ?? 0;
+        const bWins = b.seasonWins ?? b.wins ?? 0;
+        if (bWins !== aWins) {
+          return bWins - aWins;
+        }
+        const aLosses = a.seasonLosses ?? a.losses ?? 0;
+        const bLosses = b.seasonLosses ?? b.losses ?? 0;
+        if (aLosses !== bLosses) {
+          return aLosses - bLosses;
+        }
+      }
+      // Tie breaker by display name
+      const aName = a.user?.displayName || a.user?.email || '';
+      const bName = b.user?.displayName || b.user?.email || '';
+      return aName.localeCompare(bName);
+    });
+  }
+
+  getRecordDisplay(item: any): string {
+    if (this.viewMode === 'week') {
+      const wins = item.weekWins ?? 0;
+      const losses = item.weekLosses ?? 0;
+      return `${wins}-${losses}`;
+    }
+    const wins = item.seasonWins ?? item.wins ?? 0;
+    const losses = item.seasonLosses ?? item.losses ?? 0;
+    return `${wins}-${losses}`;
   }
 
   setWeekBounds() {
