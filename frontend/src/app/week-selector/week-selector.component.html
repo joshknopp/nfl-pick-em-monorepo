@@ -1,17 +1,23 @@
 <div class="week-nav text-center mb-3">
   <button
-    class="btn btn-secondary mr-2"
+    class="btn btn-secondary week-nav-arrow"
     (click)="goToPreviousWeek()"
     [disabled]="selectedWeek <= minWeek"
+    aria-label="Previous week"
+    title="Previous week"
   >
-    Previous
+    &#8249;
   </button>
-  <span class="current-week-label">Week {{ selectedWeek }}</span>
+  <ng-content>
+    <span class="current-week-label">Week {{ selectedWeek }}</span>
+  </ng-content>
   <button
-    class="btn btn-secondary ml-2"
+    class="btn btn-secondary week-nav-arrow"
     (click)="goToNextWeek()"
     [disabled]="selectedWeek >= maxWeek"
+    aria-label="Next week"
+    title="Next week"
   >
-    Next
+    &#8250;
   </button>
 </div>
