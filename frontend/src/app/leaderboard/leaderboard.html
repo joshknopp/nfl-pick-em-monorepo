@@ -6,28 +6,28 @@
       [maxWeek]="maxWeek"
       (previous)="goToPreviousWeek()"
       (next)="goToNextWeek()"
-    ></app-week-selector>
-
-    <div class="view-toggle" role="group" aria-label="Leaderboard View Record Mode">
-      <button
-        type="button"
-        class="toggle-btn"
-        [class.active]="viewMode === 'season'"
-        (click)="setViewMode('season')"
-        [attr.aria-pressed]="viewMode === 'season'"
-      >
-        Season
-      </button>
-      <button
-        type="button"
-        class="toggle-btn"
-        [class.active]="viewMode === 'week'"
-        (click)="setViewMode('week')"
-        [attr.aria-pressed]="viewMode === 'week'"
-      >
-        Week {{ selectedWeek }}
-      </button>
-    </div>
+    >
+      <div class="view-toggle" role="group" aria-label="Leaderboard View Record Mode">
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="viewMode === 'season'"
+          (click)="setViewMode('season')"
+          [attr.aria-pressed]="viewMode === 'season'"
+        >
+          Season
+        </button>
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="viewMode === 'week'"
+          (click)="setViewMode('week')"
+          [attr.aria-pressed]="viewMode === 'week'"
+        >
+          Week {{ selectedWeek }}
+        </button>
+      </div>
+    </app-week-selector>
   </div>
 
   <div *ngIf="isLoading" class="text-center">
