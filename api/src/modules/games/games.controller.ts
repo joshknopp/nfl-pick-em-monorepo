@@ -35,4 +35,16 @@ export class GamesController {
   async checkForEndedGames(): Promise<GameDto[]> {
     return await this.gamesService.checkForEndedGames();
   }
+
+  @UseGuards(AuthGuard)
+  @Post('invalidate-cache')
+  @ApiOperation({ summary: 'Invalidate the cached game lists' })
+  @ApiResponse({
+    status: 201,
+    description: 'The cached game lists have been invalidated.',
+  })
+  async invalidateGamesCache(): Promise<{ message: string }> {
+    await this.gamesService.invalidateGamesCache();
+    return { message: 'Games cache invalidated' };
+  }
 }

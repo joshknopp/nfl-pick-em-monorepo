@@ -15,7 +15,21 @@
   <div *ngIf="updatedGamesCount !== null" class="success-message">
     Successfully updated {{ updatedGamesCount }} games.
   </div>
-  <div *ngIf="error" class="error-message">
+  <button
+    class="btn btn-primary"
+    (click)="invalidateCache()"
+    [disabled]="isInvalidating"
+  >
+    <span *ngIf="!isInvalidating">Invalidate Cache</span>
+    <span *ngIf="isInvalidating">
+      <span class="spinner-sm"></span>
+      Invalidating...
+    </span>
+  </button>
+  <div *ngIf="invalidationMessage" class="success-message" role="status">
+    {{ invalidationMessage }}
+  </div>
+  <div *ngIf="error" class="error-message" role="alert">
     {{ error }}
   </div>
 </div>
