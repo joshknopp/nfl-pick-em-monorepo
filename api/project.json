@@ -60,7 +60,7 @@
       "options": {
         "commands": [
           "nx build api --prod",
-          "gcloud functions deploy nfl-pick-em-api --gen2 --region=us-east1 --source=./dist/api --entry-point=startServer --runtime=nodejs20 --trigger-http --allow-unauthenticated"
+          "gcloud functions deploy nfl-pick-em-api --gen2 --region=us-east1 --source=./dist/api --entry-point=startServer --runtime=nodejs24 --trigger-http --allow-unauthenticated"
         ],
         "cwd": "."
       }
