@@ -10,6 +10,7 @@ describe('GamesController', () => {
   const mockGamesService = {
     getGames: jest.fn(),
     checkForEndedGames: jest.fn(),
+    invalidateGamesCache: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -38,6 +39,17 @@ describe('GamesController', () => {
 
       expect(await controller.checkForEndedGames()).toBe(result);
       expect(service.checkForEndedGames).toHaveBeenCalled();
+    });
+  });
+
+  describe('invalidateGamesCache', () => {
+    it('should invalidate the game cache and return a confirmation', async () => {
+      mockGamesService.invalidateGamesCache.mockResolvedValue(undefined);
+
+      await expect(controller.invalidateGamesCache()).resolves.toEqual({
+        message: 'Games cache invalidated',
+      });
+      expect(service.invalidateGamesCache).toHaveBeenCalled();
     });
   });
 });

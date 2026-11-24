@@ -1,3 +1,40 @@
+.leaderboard-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.view-toggle {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f1f3f4;
+  padding: 3px;
+  border-radius: 20px;
+  border: 1px solid #dadce0;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  padding: 4px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #5f6368;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.toggle-btn:hover:not(.active) {
+  color: #202124;
+}
+
+.toggle-btn.active {
+  background-color: #1a73e8;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .table-responsive {
   max-height: 80vh;
   overflow-y: auto;
@@ -55,6 +92,8 @@ th.sticky-column {
   background-color: #f9f9f9;
 }
 
+.table-striped > tbody > tr.current-user > .sticky-column,
+.table > tbody > tr.current-user > .sticky-column,
 .current-user .sticky-column {
   background-color: #f1f1d1;
 }

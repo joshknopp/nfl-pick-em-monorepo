@@ -116,4 +116,51 @@ describe('LeaderboardComponent', () => {
     const tooltip = component.getGameTooltip(game);
     expect(tooltip).toEqual(expectedTooltip);
   });
+
+  it('should toggle viewMode and sort leaderboard accordingly', () => {
+    component.leaderboardData = {
+      week: 3,
+      games: [],
+      leaderboard: [
+        {
+          user: { uid: 'u1', displayName: 'Alice' },
+          seasonWins: 10,
+          seasonLosses: 2,
+          wins: 10,
+          losses: 2,
+          weekWins: 1,
+          weekLosses: 3,
+          picks: [],
+        },
+        {
+          user: { uid: 'u2', displayName: 'Bob' },
+          seasonWins: 5,
+          seasonLosses: 7,
+          wins: 5,
+          losses: 7,
+          weekWins: 4,
+          weekLosses: 0,
+          picks: [],
+        },
+      ],
+    };
+
+    // Default is season view
+    expect(component.viewMode).toBe('season');
+    component.sortLeaderboard();
+    expect(component.leaderboardData.leaderboard[0].user.displayName).toBe('Alice');
+    expect(component.getRecordDisplay(component.leaderboardData.leaderboard[0])).toBe('10-2');
+
+    // Switch to week view
+    component.setViewMode('week');
+    expect(component.viewMode).toBe('week');
+    expect(component.leaderboardData.leaderboard[0].user.displayName).toBe('Bob');
+    expect(component.getRecordDisplay(component.leaderboardData.leaderboard[0])).toBe('4-0');
+    expect(component.getRecordDisplay(component.leaderboardData.leaderboard[1])).toBe('1-3');
+
+    // Switch back to season view
+    component.setViewMode('season');
+    expect(component.leaderboardData.leaderboard[0].user.displayName).toBe('Alice');
+    expect(component.getRecordDisplay(component.leaderboardData.leaderboard[0])).toBe('10-2');
+  });
 });

@@ -42,3 +42,4 @@ jobs:
           projectId: ${{ github.ref == 'refs/heads/main' && 'nfl-pick-em-prod' || secrets.GCP_PROJECT_ID }}
           channelId: live
           entryPoint: ./
+          firebaseToolsVersion: '15.34.0'
